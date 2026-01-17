@@ -31,6 +31,10 @@ export default function Home() {
     );
   };
 
+  const handleDeleteTodo = (id: string) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
+  };
+
   return (
     <main
       style={{
@@ -42,7 +46,7 @@ export default function Home() {
     >
       <h1 style={{ marginBottom: '1.5rem' }}>ralph-test-auto-todo</h1>
       <AddTodo onAdd={handleAddTodo} />
-      <TodoList todos={todos} onToggle={handleToggleTodo} />
+      <TodoList todos={todos} onToggle={handleToggleTodo} onDelete={handleDeleteTodo} />
     </main>
   );
 }
