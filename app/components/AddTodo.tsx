@@ -55,7 +55,7 @@ export function AddTodo({ onAdd }: AddTodoProps) {
         style={{
           padding: '0.75rem 1.5rem',
           fontSize: '1rem',
-          backgroundColor: '#0070f3',
+          backgroundColor: '#722F37',
           color: 'white',
           border: 'none',
           borderRadius: '4px',

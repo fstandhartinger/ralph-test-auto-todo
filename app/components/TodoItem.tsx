@@ -38,11 +38,12 @@ export function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
         data-testid="delete-todo-button"
         onClick={() => onDelete(todo.id)}
         style={{
-          background: 'none',
+          backgroundColor: '#722F37',
           border: 'none',
+          borderRadius: '4px',
           cursor: 'pointer',
-          color: '#999',
-          fontSize: '1.2rem',
+          color: 'white',
+          fontSize: '1rem',
           padding: '0.25rem 0.5rem',
           lineHeight: 1,
         }}
