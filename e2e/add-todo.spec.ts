@@ -41,6 +41,8 @@ test.describe('Add todo functionality', () => {
 
     const input = page.getByTestId('todo-input');
     const addButton = page.getByTestId('add-todo-button');
+    // Wait for todos to load before counting
+    await expect(page.getByTestId('todo-item').first()).toBeVisible();
     const initialTodoCount = await page.getByTestId('todo-item').count();
 
     // Try to add empty todo via button click
@@ -61,6 +63,8 @@ test.describe('Add todo functionality', () => {
     await page.goto('/');
 
     const input = page.getByTestId('todo-input');
+    // Wait for todos to load before counting
+    await expect(page.getByTestId('todo-item').first()).toBeVisible();
     const initialTodoCount = await page.getByTestId('todo-item').count();
 
     // Try to add empty todo via Enter

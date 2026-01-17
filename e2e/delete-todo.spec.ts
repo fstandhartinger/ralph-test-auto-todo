@@ -4,8 +4,9 @@ test.describe('Delete todo', () => {
   test('can delete a todo item', async ({ page }) => {
     await page.goto('/');
 
-    // Get initial count of todos
+    // Wait for todos to load
     const todoItems = page.getByTestId('todo-item');
+    await expect(todoItems.first()).toBeVisible();
     const initialCount = await todoItems.count();
     expect(initialCount).toBeGreaterThan(0);
 
