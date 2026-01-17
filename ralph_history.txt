@@ -1,0 +1,14 @@
+# Ralph History Log
+# This file tracks breakthroughs, blockers, and learnings across Ralph iterations.
+# Each entry should include: timestamp, spec being worked on, and the insight.
+#
+# Format:
+# [YYYY-MM-DD HH:MM] SPEC: <spec-name> | TYPE: breakthrough|blocker|learning
+# <description>
+#
+# Example:
+# [2026-01-17 10:30] SPEC: user-auth | TYPE: breakthrough
+# Discovered that NextAuth.js handles session refresh automatically.
+
+--- LOG START ---
+
