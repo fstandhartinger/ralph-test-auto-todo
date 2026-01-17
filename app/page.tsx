@@ -23,6 +23,14 @@ export default function Home() {
     setTodos([...todos, newTodo]);
   };
 
+  const handleToggleTodo = (id: string) => {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
+  };
+
   return (
     <main
       style={{
@@ -34,7 +42,7 @@ export default function Home() {
     >
       <h1 style={{ marginBottom: '1.5rem' }}>ralph-test-auto-todo</h1>
       <AddTodo onAdd={handleAddTodo} />
-      <TodoList todos={todos} />
+      <TodoList todos={todos} onToggle={handleToggleTodo} />
     </main>
   );
 }

@@ -3,9 +3,10 @@ import { TodoItem } from './TodoItem';
 
 interface TodoListProps {
   todos: Todo[];
+  onToggle: (id: string) => void;
 }
 
-export function TodoList({ todos }: TodoListProps) {
+export function TodoList({ todos, onToggle }: TodoListProps) {
   return (
     <ul
       data-testid="todo-list"
@@ -19,7 +20,7 @@ export function TodoList({ todos }: TodoListProps) {
       }}
     >
       {todos.map((todo) => (
-        <TodoItem key={todo.id} todo={todo} />
+        <TodoItem key={todo.id} todo={todo} onToggle={onToggle} />
       ))}
     </ul>
   );

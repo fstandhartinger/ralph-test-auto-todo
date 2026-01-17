@@ -2,9 +2,10 @@ import { Todo } from '../types/todo';
 
 interface TodoItemProps {
   todo: Todo;
+  onToggle: (id: string) => void;
 }
 
-export function TodoItem({ todo }: TodoItemProps) {
+export function TodoItem({ todo, onToggle }: TodoItemProps) {
   return (
     <li
       data-testid="todo-item"
@@ -16,6 +17,13 @@ export function TodoItem({ todo }: TodoItemProps) {
         gap: '0.5rem',
       }}
     >
+      <input
+        type="checkbox"
+        data-testid="todo-checkbox"
+        checked={todo.completed}
+        onChange={() => onToggle(todo.id)}
+        style={{ cursor: 'pointer' }}
+      />
       <span
         style={{
           textDecoration: todo.completed ? 'line-through' : 'none',
