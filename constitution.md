@@ -21,6 +21,23 @@ This is a **self-evolving autonomous development project**. The core idea:
 **Deployment:** Render (auto-deploy on push)
 **Issue Source:** GitHub Issues
 
+### Render Deployment Details
+
+- **Service URL:** https://ralph-test-auto-todo.onrender.com
+- **Service ID:** srv-d5lr6emr433s73dhi2tg
+- **Dashboard:** https://dashboard.render.com/web/srv-d5lr6emr433s73dhi2tg
+- **Auto-deploy:** Enabled (triggers on push to main)
+
+To check deployment status:
+```bash
+render deploys --service srv-d5lr6emr433s73dhi2tg --output json
+```
+
+To view logs:
+```bash
+render logs --service srv-d5lr6emr433s73dhi2tg --output text
+```
+
 ## Core Principles
 
 ### 1. Test-Driven Development
