@@ -1,105 +1,114 @@
 #!/bin/bash
 #
-# Ralph Wiggum Loop - Claude Code Edition
-# Implements Geoffrey Huntley's iterative bash loop methodology
+# Ralph Wiggum Loop - Issue-Driven Edition
+# Endless autonomous development loop that implements GitHub issues
 #
 # Usage:
-#   ./scripts/ralph-loop.sh           # Run in build mode (default)
-#   ./scripts/ralph-loop.sh plan      # Run in plan mode
-#   ./scripts/ralph-loop.sh 20        # Run with max 20 iterations
+#   ./scripts/ralph-loop.sh           # Run forever (default)
+#   ./scripts/ralph-loop.sh 20        # Run max 20 iterations
 #
 
 set -e
 
 # Configuration
-MAX_ITERATIONS=${1:-100}
-MODE=${2:-build}
+MAX_ITERATIONS=${1:-0}  # 0 = infinite
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 DONE_SIGNAL="<promise>DONE</promise>"
+
+# Wait times for when no issues exist (in seconds)
+WAIT_CYCLE=(60 300 600)  # 1 min, 5 min, 10 min
+WAIT_INDEX=0
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║              RALPH WIGGUM LOOP - STARTING                  ║${NC}"
+echo -e "${BLUE}║         RALPH WIGGUM - ISSUE-DRIVEN AUTONOMOUS DEV        ║${NC}"
 echo -e "${BLUE}╠════════════════════════════════════════════════════════════╣${NC}"
-echo -e "${BLUE}║  Mode: ${GREEN}$MODE${BLUE}                                               ║${NC}"
-echo -e "${BLUE}║  Max Iterations: ${GREEN}$MAX_ITERATIONS${BLUE}                                      ║${NC}"
-echo -e "${BLUE}║  Project: ${GREEN}$PROJECT_DIR${BLUE}${NC}"
+echo -e "${BLUE}║  Project: ${GREEN}ralph-test-auto-todo${BLUE}                           ║${NC}"
+echo -e "${BLUE}║  Mode: ${GREEN}GitHub Issues → Implement → Deploy → Verify${BLUE}       ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
-# Build the prompt based on mode
-if [ "$MODE" = "plan" ]; then
-    PROMPT="You are Ralph Wiggum in PLAN mode.
+# The prompt that drives the agent
+PROMPT='You are Ralph Wiggum, an autonomous AI developer.
 
-Read constitution.md to understand project principles.
-Review specs/ folder for pending specifications.
-Create or update IMPLEMENTATION_PLAN.md with a detailed task breakdown.
+Read constitution.md first - it contains your complete instructions.
 
-When planning is complete, output: $DONE_SIGNAL"
-else
-    PROMPT="You are Ralph Wiggum in BUILD mode.
+Your workflow:
+1. Check for open GitHub issues: `gh issue list --state open`
+2. If issues exist:
+   - Pick the oldest/highest priority issue
+   - Implement it following the Definition of Done in constitution.md
+   - This includes: tests, build, commit, push, monitor Render deploy, visual verification
+   - Close the issue when done
+   - Output: <promise>DONE</promise>
+3. If NO issues exist:
+   - Output: <promise>NO_ISSUES</promise>
+   - (The loop will handle waiting)
 
-1. Read constitution.md to understand project principles
-2. Check ralph_history.txt for context from previous iterations
-3. Look in specs/ for incomplete specifications
-4. Pick ONE spec and implement it fully
-5. Run tests to verify acceptance criteria
-6. Commit changes with a clear message
-7. Log any breakthroughs or blockers to ralph_history.txt
+Remember:
+- ONE issue at a time
+- ALL tests must pass BEFORE committing
+- Monitor Render deployment via Render MCP
+- Visually verify the deployed feature
+- Log breakthroughs/blockers in ralph_history.txt
 
-IMPORTANT: Only output $DONE_SIGNAL when:
-- ALL acceptance criteria are verified passing
-- Tests pass
-- Changes are committed
-
-If you cannot complete the spec, do NOT output the done signal.
-Instead, document the blocker in ralph_history.txt."
-fi
+DO NOT output <promise>DONE</promise> unless the issue is fully complete and deployed.'
 
 # Main loop
-for ((i=1; i<=MAX_ITERATIONS; i++)); do
-    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${YELLOW}  ITERATION $i of $MAX_ITERATIONS${NC}"
-    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+ITERATION=0
+while true; do
+    ITERATION=$((ITERATION + 1))
+
+    # Check max iterations
+    if [ "$MAX_ITERATIONS" -gt 0 ] && [ "$ITERATION" -gt "$MAX_ITERATIONS" ]; then
+        echo -e "${YELLOW}Max iterations ($MAX_ITERATIONS) reached. Exiting.${NC}"
+        exit 0
+    fi
+
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${CYAN}  ITERATION $ITERATION $([ "$MAX_ITERATIONS" -gt 0 ] && echo "of $MAX_ITERATIONS")${NC}"
+    echo -e "${CYAN}  $(date '+%Y-%m-%d %H:%M:%S')${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
 
     # Run Claude Code and capture output
-    # Using --dangerously-skip-permissions for full autonomy (use with caution!)
     OUTPUT=$(cd "$PROJECT_DIR" && claude --print "$PROMPT" 2>&1) || true
 
     echo "$OUTPUT"
     echo ""
 
-    # Check for completion signal
+    # Check for completion signals
     if echo "$OUTPUT" | grep -q "$DONE_SIGNAL"; then
         echo -e "${GREEN}╔════════════════════════════════════════════════════════════╗${NC}"
-        echo -e "${GREEN}║                    SPEC COMPLETED!                         ║${NC}"
+        echo -e "${GREEN}║                  ISSUE COMPLETED & DEPLOYED!               ║${NC}"
         echo -e "${GREEN}╚════════════════════════════════════════════════════════════╝${NC}"
+        WAIT_INDEX=0  # Reset wait cycle after successful completion
+        sleep 5  # Brief pause before checking for next issue
 
-        # Check if there are more specs to process
-        REMAINING=$(find "$PROJECT_DIR/specs" -name "*.md" -exec grep -l "\- \[ \]" {} \; 2>/dev/null | wc -l)
+    elif echo "$OUTPUT" | grep -q "<promise>NO_ISSUES</promise>"; then
+        WAIT_TIME=${WAIT_CYCLE[$WAIT_INDEX]}
+        WAIT_MIN=$((WAIT_TIME / 60))
 
-        if [ "$REMAINING" -eq 0 ]; then
-            echo -e "${GREEN}All specs completed! Ralph is done.${NC}"
-            exit 0
-        else
-            echo -e "${BLUE}$REMAINING spec(s) remaining. Continuing...${NC}"
-            echo ""
-        fi
+        echo -e "${YELLOW}╔════════════════════════════════════════════════════════════╗${NC}"
+        echo -e "${YELLOW}║                    NO OPEN ISSUES FOUND                    ║${NC}"
+        echo -e "${YELLOW}║            Waiting ${WAIT_MIN} minute(s) before retry...              ║${NC}"
+        echo -e "${YELLOW}╚════════════════════════════════════════════════════════════╝${NC}"
+
+        sleep "$WAIT_TIME"
+
+        # Advance wait cycle (1 -> 5 -> 10 -> 1 -> ...)
+        WAIT_INDEX=$(( (WAIT_INDEX + 1) % ${#WAIT_CYCLE[@]} ))
+
     else
-        echo -e "${RED}Completion signal not found. Retrying...${NC}"
-        echo ""
+        echo -e "${RED}No completion signal found. Issue may be in progress or blocked.${NC}"
+        echo -e "${RED}Retrying in 30 seconds...${NC}"
+        sleep 30
     fi
-
-    # Small delay between iterations
-    sleep 2
 done
-
-echo -e "${RED}Max iterations reached. Check ralph_history.txt for status.${NC}"
-exit 1
