@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { ChangeRequest } from '../types/change-request';
+import { ChangeRequest, ChangeRequestComment } from '../types/change-request';
 
 const statusColors: Record<ChangeRequest['status'], string> = {
   open: '#4CAF50',
@@ -22,6 +22,10 @@ export default function ChangeRequestsPage() {
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [comments, setComments] = useState<Record<string, ChangeRequestComment[]>>({});
+  const [newComment, setNewComment] = useState('');
+  const [commentAuthor, setCommentAuthor] = useState('');
 
   // Form state
   const [title, setTitle] = useState('');
@@ -43,9 +47,26 @@ export default function ChangeRequestsPage() {
     }
   }, []);
 
+  const fetchComments = useCallback(async (changeRequestId: string) => {
+    try {
+      const response = await fetch(`/api/change-requests/${changeRequestId}/comments`);
+      if (!response.ok) throw new Error('Failed to fetch comments');
+      const data = await response.json();
+      setComments(prev => ({ ...prev, [changeRequestId]: data }));
+    } catch {
+      console.error('Failed to load comments');
+    }
+  }, []);
+
   useEffect(() => {
     fetchChangeRequests();
   }, [fetchChangeRequests]);
+
+  useEffect(() => {
+    if (expandedId) {
+      fetchComments(expandedId);
+    }
+  }, [expandedId, fetchComments]);
 
   const resetForm = () => {
     setTitle('');
@@ -115,12 +136,35 @@ export default function ChangeRequestsPage() {
     }
   };
 
+  const handleAddComment = async (changeRequestId: string) => {
+    if (!newComment.trim()) return;
+    try {
+      const response = await fetch(`/api/change-requests/${changeRequestId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: newComment,
+          author: commentAuthor.trim() || 'Anonymous'
+        }),
+      });
+      if (!response.ok) throw new Error('Failed to add comment');
+      setNewComment('');
+      fetchComments(changeRequestId);
+    } catch {
+      setError('Failed to add comment');
+    }
+  };
+
+  const toggleExpand = (id: string) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
+
   return (
-    <main style={{ padding: '2rem', fontFamily: 'system-ui, sans-serif', maxWidth: '900px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h1>Change Requests</h1>
-        <div>
-          <a href="/" style={{ marginRight: '1rem', color: '#722F37' }}>Back to Todos</a>
+    <main style={{ padding: '1rem', fontFamily: 'system-ui, sans-serif', maxWidth: '900px', margin: '0 auto' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '0.75rem' }}>
+        <h1 style={{ fontSize: 'clamp(1.25rem, 5vw, 1.75rem)', margin: 0 }}>Change Requests</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <a href="/" style={{ color: '#722F37', fontSize: '0.875rem' }}>Back to Todos</a>
           <button
             onClick={() => { resetForm(); setShowForm(!showForm); }}
             style={{
@@ -130,6 +174,8 @@ export default function ChangeRequestsPage() {
               padding: '0.5rem 1rem',
               borderRadius: '4px',
               cursor: 'pointer',
+              fontSize: '0.875rem',
+              whiteSpace: 'nowrap',
             }}
           >
             {showForm ? 'Cancel' : 'New Request'}
@@ -272,6 +318,19 @@ export default function ChangeRequestsPage() {
                 </span>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button
+                    onClick={() => toggleExpand(cr.id)}
+                    style={{
+                      backgroundColor: 'transparent',
+                      color: '#666',
+                      border: '1px solid #ddd',
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {expandedId === cr.id ? 'Hide Comments' : 'Comments'}
+                  </button>
+                  <button
                     onClick={() => handleEdit(cr)}
                     style={{
                       backgroundColor: 'transparent',
@@ -299,6 +358,74 @@ export default function ChangeRequestsPage() {
                   </button>
                 </div>
               </div>
+
+              {/* Comments Section */}
+              {expandedId === cr.id && (
+                <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #eee' }}>
+                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Comments</h4>
+
+                  {/* Comments List */}
+                  {comments[cr.id]?.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+                      {comments[cr.id].map((comment) => (
+                        <div
+                          key={comment.id}
+                          style={{
+                            backgroundColor: '#f9f9f9',
+                            padding: '0.75rem',
+                            borderRadius: '4px',
+                            borderLeft: '3px solid #722F37',
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                            <strong style={{ color: '#722F37' }}>{comment.author}</strong>
+                            <span style={{ color: '#999', fontSize: '0.75rem' }}>
+                              {new Date(comment.created_at).toLocaleString()}
+                            </span>
+                          </div>
+                          <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{comment.content}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p style={{ color: '#999', fontStyle: 'italic', marginBottom: '1rem' }}>No comments yet</p>
+                  )}
+
+                  {/* Add Comment Form */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <input
+                      type="text"
+                      value={commentAuthor}
+                      onChange={(e) => setCommentAuthor(e.target.value)}
+                      placeholder="Your name (optional)"
+                      style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd' }}
+                    />
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <textarea
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        placeholder="Add a comment..."
+                        rows={2}
+                        style={{ flex: 1, padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd', resize: 'vertical' }}
+                      />
+                      <button
+                        onClick={() => handleAddComment(cr.id)}
+                        style={{
+                          backgroundColor: '#722F37',
+                          color: 'white',
+                          border: 'none',
+                          padding: '0.5rem 1rem',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          alignSelf: 'flex-end',
+                        }}
+                      >
+                        Post
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
