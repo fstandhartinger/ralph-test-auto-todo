@@ -77,15 +77,15 @@ export default function Home() {
   return (
     <main
       style={{
-        padding: '2rem',
+        padding: '1rem',
         fontFamily: 'system-ui, sans-serif',
         maxWidth: '600px',
         margin: '0 auto',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h1 style={{ margin: 0 }}>ralph-test-auto-todo</h1>
-        <a href="/change-requests" style={{ color: '#722F37', textDecoration: 'none' }}>Change Requests</a>
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '0.5rem' }}>
+        <h1 style={{ margin: 0, fontSize: 'clamp(1.25rem, 5vw, 1.75rem)' }}>ralph-test-auto-todo</h1>
+        <a href="/change-requests" style={{ color: '#722F37', textDecoration: 'none', fontSize: '0.875rem' }}>Change Requests</a>
       </div>
       <AddTodo onAdd={handleAddTodo} />
       <TodoList todos={todos} onToggle={handleToggleTodo} onDelete={handleDeleteTodo} />

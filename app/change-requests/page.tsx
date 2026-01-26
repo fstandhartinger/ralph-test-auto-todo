@@ -190,37 +190,37 @@ export default function ChangeRequestsPage() {
       )}
 
       {showForm && (
-        <form onSubmit={handleSubmit} style={{ backgroundColor: '#f5f5f5', padding: '1.5rem', borderRadius: '8px', marginBottom: '2rem' }}>
-          <h2 style={{ marginTop: 0 }}>{editingId ? 'Edit Request' : 'New Request'}</h2>
+        <form onSubmit={handleSubmit} style={{ backgroundColor: '#f5f5f5', padding: '1rem', borderRadius: '8px', marginBottom: '2rem' }}>
+          <h2 style={{ marginTop: 0, fontSize: 'clamp(1.1rem, 4vw, 1.5rem)' }}>{editingId ? 'Edit Request' : 'New Request'}</h2>
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Title</label>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', fontSize: '0.875rem' }}>Title</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '1rem' }}
               placeholder="Brief title for the request"
             />
           </div>
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Description</label>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', fontSize: '0.875rem' }}>Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required
               rows={4}
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd', boxSizing: 'border-box', resize: 'vertical' }}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid #ddd', boxSizing: 'border-box', resize: 'vertical', fontSize: '1rem' }}
               placeholder="Detailed description of the feature or issue..."
             />
           </div>
-          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Priority</label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
+            <div style={{ flex: '1 1 150px', minWidth: '120px' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', fontSize: '0.875rem' }}>Priority</label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as ChangeRequest['priority'])}
-                style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd' }}
+                style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid #ddd', fontSize: '1rem' }}
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
@@ -228,12 +228,12 @@ export default function ChangeRequestsPage() {
               </select>
             </div>
             {editingId && (
-              <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Status</label>
+              <div style={{ flex: '1 1 150px', minWidth: '120px' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', fontSize: '0.875rem' }}>Status</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as ChangeRequest['status'])}
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd' }}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid #ddd', fontSize: '1rem' }}
                 >
                   <option value="open">Open</option>
                   <option value="in_progress">In Progress</option>
@@ -253,6 +253,7 @@ export default function ChangeRequestsPage() {
               borderRadius: '4px',
               cursor: 'pointer',
               fontWeight: 'bold',
+              width: '100%',
             }}
           >
             {editingId ? 'Update' : 'Submit'}
@@ -272,20 +273,20 @@ export default function ChangeRequestsPage() {
               style={{
                 border: '1px solid #ddd',
                 borderRadius: '8px',
-                padding: '1rem',
+                padding: '0.75rem',
                 backgroundColor: 'white',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                <h3 style={{ margin: 0, flex: 1 }}>{cr.title}</h3>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem', gap: '0.5rem' }}>
+                <h3 style={{ margin: 0, flex: '1 1 auto', minWidth: '150px', fontSize: 'clamp(0.95rem, 3vw, 1.1rem)', wordBreak: 'break-word' }}>{cr.title}</h3>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexShrink: 0 }}>
                   <span
                     style={{
                       backgroundColor: priorityColors[cr.priority],
                       color: 'white',
-                      padding: '0.25rem 0.5rem',
+                      padding: '0.2rem 0.4rem',
                       borderRadius: '4px',
-                      fontSize: '0.75rem',
+                      fontSize: '0.7rem',
                       textTransform: 'uppercase',
                     }}
                   >
@@ -298,9 +299,9 @@ export default function ChangeRequestsPage() {
                       backgroundColor: statusColors[cr.status],
                       color: 'white',
                       border: 'none',
-                      padding: '0.25rem 0.5rem',
+                      padding: '0.2rem 0.4rem',
                       borderRadius: '4px',
-                      fontSize: '0.75rem',
+                      fontSize: '0.7rem',
                       cursor: 'pointer',
                     }}
                   >
@@ -311,24 +312,25 @@ export default function ChangeRequestsPage() {
                   </select>
                 </div>
               </div>
-              <p style={{ margin: '0.5rem 0', color: '#333', whiteSpace: 'pre-wrap' }}>{cr.description}</p>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', paddingTop: '0.5rem', borderTop: '1px solid #eee' }}>
-                <span style={{ color: '#666', fontSize: '0.875rem' }}>
+              <p style={{ margin: '0.5rem 0', color: '#333', whiteSpace: 'pre-wrap', fontSize: '0.9rem', wordBreak: 'break-word' }}>{cr.description}</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', paddingTop: '0.5rem', borderTop: '1px solid #eee', gap: '0.5rem' }}>
+                <span style={{ color: '#666', fontSize: '0.75rem' }}>
                   Created: {new Date(cr.created_at).toLocaleDateString()}
                 </span>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
                   <button
                     onClick={() => toggleExpand(cr.id)}
                     style={{
                       backgroundColor: 'transparent',
                       color: '#666',
                       border: '1px solid #ddd',
-                      padding: '0.25rem 0.75rem',
+                      padding: '0.25rem 0.5rem',
                       borderRadius: '4px',
                       cursor: 'pointer',
+                      fontSize: '0.75rem',
                     }}
                   >
-                    {expandedId === cr.id ? 'Hide Comments' : 'Comments'}
+                    {expandedId === cr.id ? 'Hide' : 'Comments'}
                   </button>
                   <button
                     onClick={() => handleEdit(cr)}
@@ -336,9 +338,10 @@ export default function ChangeRequestsPage() {
                       backgroundColor: 'transparent',
                       color: '#722F37',
                       border: '1px solid #722F37',
-                      padding: '0.25rem 0.75rem',
+                      padding: '0.25rem 0.5rem',
                       borderRadius: '4px',
                       cursor: 'pointer',
+                      fontSize: '0.75rem',
                     }}
                   >
                     Edit
@@ -349,9 +352,10 @@ export default function ChangeRequestsPage() {
                       backgroundColor: 'transparent',
                       color: '#f44336',
                       border: '1px solid #f44336',
-                      padding: '0.25rem 0.75rem',
+                      padding: '0.25rem 0.5rem',
                       borderRadius: '4px',
                       cursor: 'pointer',
+                      fontSize: '0.75rem',
                     }}
                   >
                     Delete
@@ -362,7 +366,7 @@ export default function ChangeRequestsPage() {
               {/* Comments Section */}
               {expandedId === cr.id && (
                 <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #eee' }}>
-                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#666' }}>Comments</h4>
+                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#666', fontSize: '0.9rem' }}>Comments</h4>
 
                   {/* Comments List */}
                   {comments[cr.id]?.length > 0 ? (
@@ -372,23 +376,23 @@ export default function ChangeRequestsPage() {
                           key={comment.id}
                           style={{
                             backgroundColor: '#f9f9f9',
-                            padding: '0.75rem',
+                            padding: '0.5rem',
                             borderRadius: '4px',
                             borderLeft: '3px solid #722F37',
                           }}
                         >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                            <strong style={{ color: '#722F37' }}>{comment.author}</strong>
-                            <span style={{ color: '#999', fontSize: '0.75rem' }}>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: '0.25rem', gap: '0.25rem' }}>
+                            <strong style={{ color: '#722F37', fontSize: '0.85rem' }}>{comment.author}</strong>
+                            <span style={{ color: '#999', fontSize: '0.7rem' }}>
                               {new Date(comment.created_at).toLocaleString()}
                             </span>
                           </div>
-                          <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{comment.content}</p>
+                          <p style={{ margin: 0, whiteSpace: 'pre-wrap', fontSize: '0.85rem', wordBreak: 'break-word' }}>{comment.content}</p>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p style={{ color: '#999', fontStyle: 'italic', marginBottom: '1rem' }}>No comments yet</p>
+                    <p style={{ color: '#999', fontStyle: 'italic', marginBottom: '1rem', fontSize: '0.85rem' }}>No comments yet</p>
                   )}
 
                   {/* Add Comment Form */}
@@ -398,31 +402,30 @@ export default function ChangeRequestsPage() {
                       value={commentAuthor}
                       onChange={(e) => setCommentAuthor(e.target.value)}
                       placeholder="Your name (optional)"
-                      style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd' }}
+                      style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd', fontSize: '0.9rem' }}
                     />
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <textarea
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        placeholder="Add a comment..."
-                        rows={2}
-                        style={{ flex: 1, padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd', resize: 'vertical' }}
-                      />
-                      <button
-                        onClick={() => handleAddComment(cr.id)}
-                        style={{
-                          backgroundColor: '#722F37',
-                          color: 'white',
-                          border: 'none',
-                          padding: '0.5rem 1rem',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          alignSelf: 'flex-end',
-                        }}
-                      >
-                        Post
-                      </button>
-                    </div>
+                    <textarea
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="Add a comment..."
+                      rows={2}
+                      style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd', resize: 'vertical', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                    />
+                    <button
+                      onClick={() => handleAddComment(cr.id)}
+                      style={{
+                        backgroundColor: '#722F37',
+                        color: 'white',
+                        border: 'none',
+                        padding: '0.5rem 1rem',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        width: '100%',
+                        fontSize: '0.9rem',
+                      }}
+                    >
+                      Post Comment
+                    </button>
                   </div>
                 </div>
               )}

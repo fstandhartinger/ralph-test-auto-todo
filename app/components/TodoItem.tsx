@@ -11,7 +11,7 @@ export function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
     <li
       data-testid="todo-item"
       style={{
-        padding: '0.75rem 1rem',
+        padding: '0.75rem 0.5rem',
         borderBottom: '1px solid #eee',
         display: 'flex',
         alignItems: 'center',
@@ -23,13 +23,15 @@ export function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
         data-testid="todo-checkbox"
         checked={todo.completed}
         onChange={() => onToggle(todo.id)}
-        style={{ cursor: 'pointer' }}
+        style={{ cursor: 'pointer', flexShrink: 0, width: '18px', height: '18px' }}
       />
       <span
         style={{
           textDecoration: todo.completed ? 'line-through' : 'none',
           color: todo.completed ? '#888' : 'inherit',
           flex: 1,
+          minWidth: 0,
+          wordBreak: 'break-word',
         }}
       >
         {todo.title}
@@ -46,6 +48,7 @@ export function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
           fontSize: '1rem',
           padding: '0.25rem 0.5rem',
           lineHeight: 1,
+          flexShrink: 0,
         }}
         aria-label={`Delete ${todo.title}`}
       >

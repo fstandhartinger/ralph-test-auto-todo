@@ -29,6 +29,7 @@ export function AddTodo({ onAdd }: AddTodoProps) {
     <div
       style={{
         display: 'flex',
+        flexWrap: 'wrap',
         gap: '0.5rem',
         marginBottom: '1rem',
       }}
@@ -41,7 +42,8 @@ export function AddTodo({ onAdd }: AddTodoProps) {
         onKeyDown={handleKeyDown}
         placeholder="Enter a new todo..."
         style={{
-          flex: 1,
+          flex: '1 1 200px',
+          minWidth: 0,
           padding: '0.75rem',
           fontSize: '1rem',
           border: '1px solid #ddd',
@@ -60,6 +62,7 @@ export function AddTodo({ onAdd }: AddTodoProps) {
           border: 'none',
           borderRadius: '4px',
           cursor: 'pointer',
+          flexShrink: 0,
         }}
       >
         Add
