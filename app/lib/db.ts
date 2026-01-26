@@ -1,0 +1,37 @@
+import { Pool } from 'pg';
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+});
+
+export async function initDatabase() {
+  const client = await pool.connect();
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS change_requests (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        title VARCHAR(255) NOT NULL,
+        description TEXT NOT NULL,
+        status VARCHAR(20) DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'completed', 'rejected')),
+        priority VARCHAR(10) DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high')),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `);
+  } finally {
+    client.release();
+  }
+}
+
+export async function query<T>(text: string, params?: unknown[]): Promise<T[]> {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(text, params);
+    return result.rows as T[];
+  } finally {
+    client.release();
+  }
+}
+
+export default pool;

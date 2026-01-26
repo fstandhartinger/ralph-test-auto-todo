@@ -83,7 +83,10 @@ export default function Home() {
         margin: '0 auto',
       }}
     >
-      <h1 style={{ marginBottom: '1.5rem' }}>ralph-test-auto-todo</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <h1 style={{ margin: 0 }}>ralph-test-auto-todo</h1>
+        <a href="/change-requests" style={{ color: '#722F37', textDecoration: 'none' }}>Change Requests</a>
+      </div>
       <AddTodo onAdd={handleAddTodo} />
       <TodoList todos={todos} onToggle={handleToggleTodo} onDelete={handleDeleteTodo} />
     </main>
