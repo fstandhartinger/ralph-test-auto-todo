@@ -25,8 +25,8 @@ test.describe('Toggle todo completion', () => {
     // Verify text has strikethrough styling
     await expect(firstTodoText).toHaveCSS('text-decoration-line', 'line-through');
 
-    // Verify text has lighter color
-    await expect(firstTodoText).toHaveCSS('color', 'rgb(136, 136, 136)');
+    // Verify text has lighter/muted color (--text-muted is #666 = rgb(102, 102, 102))
+    await expect(firstTodoText).toHaveCSS('color', 'rgb(102, 102, 102)');
   });
 
   test('can toggle a completed todo back to incomplete', async ({ page }) => {

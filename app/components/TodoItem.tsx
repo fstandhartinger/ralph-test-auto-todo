@@ -12,7 +12,7 @@ export function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
       data-testid="todo-item"
       style={{
         padding: '0.75rem 0.5rem',
-        borderBottom: '1px solid #eee',
+        borderBottom: '1px solid var(--border-light)',
         display: 'flex',
         alignItems: 'center',
         gap: '0.5rem',
@@ -28,7 +28,7 @@ export function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
       <span
         style={{
           textDecoration: todo.completed ? 'line-through' : 'none',
-          color: todo.completed ? '#888' : 'inherit',
+          color: todo.completed ? 'var(--text-muted)' : 'inherit',
           flex: 1,
           minWidth: 0,
           wordBreak: 'break-word',
@@ -40,7 +40,7 @@ export function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
         data-testid="delete-todo-button"
         onClick={() => onDelete(todo.id)}
         style={{
-          backgroundColor: '#722F37',
+          backgroundColor: 'var(--accent)',
           border: 'none',
           borderRadius: '4px',
           cursor: 'pointer',

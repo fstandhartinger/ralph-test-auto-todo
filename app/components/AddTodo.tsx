@@ -46,8 +46,10 @@ export function AddTodo({ onAdd }: AddTodoProps) {
           minWidth: 0,
           padding: '0.75rem',
           fontSize: '1rem',
-          border: '1px solid #ddd',
+          border: '1px solid var(--input-border)',
           borderRadius: '4px',
+          backgroundColor: 'var(--input-background)',
+          color: 'var(--foreground)',
         }}
       />
       <button
@@ -57,7 +59,7 @@ export function AddTodo({ onAdd }: AddTodoProps) {
         style={{
           padding: '0.75rem 1.5rem',
           fontSize: '1rem',
-          backgroundColor: '#722F37',
+          backgroundColor: 'var(--accent)',
           color: 'white',
           border: 'none',
           borderRadius: '4px',
