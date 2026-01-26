@@ -1,17 +1,19 @@
 import { useState, KeyboardEvent, ChangeEvent } from 'react';
 
 interface AddTodoProps {
-  onAdd: (title: string) => void;
+  onAdd: (title: string, targetDate?: string) => void;
 }
 
 export function AddTodo({ onAdd }: AddTodoProps) {
   const [inputValue, setInputValue] = useState('');
+  const [targetDate, setTargetDate] = useState('');
 
   const handleSubmit = () => {
     const trimmedValue = inputValue.trim();
     if (trimmedValue) {
-      onAdd(trimmedValue);
+      onAdd(trimmedValue, targetDate || undefined);
       setInputValue('');
+      setTargetDate('');
     }
   };
 
@@ -50,6 +52,21 @@ export function AddTodo({ onAdd }: AddTodoProps) {
           borderRadius: '4px',
           backgroundColor: 'var(--input-background)',
           color: 'var(--foreground)',
+        }}
+      />
+      <input
+        type="date"
+        data-testid="target-date-input"
+        value={targetDate}
+        onChange={(e) => setTargetDate(e.target.value)}
+        style={{
+          padding: '0.75rem',
+          fontSize: '1rem',
+          border: '1px solid var(--input-border)',
+          borderRadius: '4px',
+          backgroundColor: 'var(--input-background)',
+          color: 'var(--foreground)',
+          flexShrink: 0,
         }}
       />
       <button

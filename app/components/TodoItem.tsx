@@ -25,17 +25,36 @@ export function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
         onChange={() => onToggle(todo.id)}
         style={{ cursor: 'pointer', flexShrink: 0, width: '18px', height: '18px' }}
       />
-      <span
+      <div
         style={{
-          textDecoration: todo.completed ? 'line-through' : 'none',
-          color: todo.completed ? 'var(--text-muted)' : 'inherit',
           flex: 1,
           minWidth: 0,
-          wordBreak: 'break-word',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.25rem',
         }}
       >
-        {todo.title}
-      </span>
+        <span
+          style={{
+            textDecoration: todo.completed ? 'line-through' : 'none',
+            color: todo.completed ? 'var(--text-muted)' : 'inherit',
+            wordBreak: 'break-word',
+          }}
+        >
+          {todo.title}
+        </span>
+        {todo.targetDate && (
+          <span
+            data-testid="target-date-display"
+            style={{
+              fontSize: '0.75rem',
+              color: 'var(--text-muted)',
+            }}
+          >
+            Due: {new Date(todo.targetDate).toLocaleDateString()}
+          </span>
+        )}
+      </div>
       <button
         data-testid="delete-todo-button"
         onClick={() => onDelete(todo.id)}

@@ -54,11 +54,12 @@ export default function Home() {
     }
   }, [todos, isInitialized]);
 
-  const handleAddTodo = (title: string) => {
+  const handleAddTodo = (title: string, targetDate?: string) => {
     const newTodo: Todo = {
       id: crypto.randomUUID(),
       title,
       completed: false,
+      targetDate,
     };
     setTodos([...todos, newTodo]);
   };
