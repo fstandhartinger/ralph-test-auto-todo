@@ -2,7 +2,7 @@ export interface ChangeRequest {
   id: string;
   title: string;
   description: string;
-  status: 'open' | 'in_progress' | 'completed' | 'rejected';
+  status: 'open' | 'in_progress' | 'in_discussion' | 'completed' | 'rejected';
   priority: 'low' | 'medium' | 'high';
   created_at: string;
   updated_at: string;

@@ -109,3 +109,7 @@ Added E2E coverage for optional target dates and ensured lint/test stability:
 - Added target date Playwright tests for add + optional behavior
 - Switched theme/todo initialization to lazy state to satisfy lint rule
 - Updated dark mode test to wait for background transition
+
+[2026-01-26 14:50] CHANGE-REQUEST: Bessere Kommentarfunktion | TYPE: breakthrough
+- Added comment polling with unread badges + notification support, and In Discussion status handling
+- Added Playwright coverage for unread counts and notifications using mocked change-request APIs

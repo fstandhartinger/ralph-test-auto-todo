@@ -13,12 +13,18 @@ export async function initDatabase() {
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         title VARCHAR(255) NOT NULL,
         description TEXT NOT NULL,
-        status VARCHAR(20) DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'completed', 'rejected')),
+        status VARCHAR(20) DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'in_discussion', 'completed', 'rejected')),
         priority VARCHAR(10) DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high')),
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
     `);
+    await client.query(
+      "ALTER TABLE change_requests DROP CONSTRAINT IF EXISTS change_requests_status_check"
+    );
+    await client.query(
+      "ALTER TABLE change_requests ADD CONSTRAINT change_requests_status_check CHECK (status IN ('open', 'in_progress', 'in_discussion', 'completed', 'rejected'))"
+    );
   } finally {
     client.release();
   }

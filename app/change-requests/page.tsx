@@ -1,13 +1,22 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { ChangeRequest, ChangeRequestComment } from '../types/change-request';
 import { ThemeToggle } from '../components/ThemeToggle';
+import {
+  ChangeRequestReadState,
+  READ_STORAGE_KEY,
+  getUnreadCount,
+  loadReadState,
+  markCommentsRead,
+  saveReadState,
+} from '../lib/change-request-read';
 
 const statusColors: Record<ChangeRequest['status'], string> = {
   open: '#4CAF50',
   in_progress: '#2196F3',
+  in_discussion: '#FFB300',
   completed: '#9E9E9E',
   rejected: '#f44336',
 };
@@ -17,6 +26,8 @@ const priorityColors: Record<ChangeRequest['priority'], string> = {
   medium: '#FF9800',
   high: '#f44336',
 };
+
+const COMMENT_POLL_INTERVAL_MS = 4000;
 
 export default function ChangeRequestsPage() {
   const [changeRequests, setChangeRequests] = useState<ChangeRequest[]>([]);
@@ -28,12 +39,42 @@ export default function ChangeRequestsPage() {
   const [comments, setComments] = useState<Record<string, ChangeRequestComment[]>>({});
   const [newComment, setNewComment] = useState('');
   const [commentAuthor, setCommentAuthor] = useState('');
+  const [readState, setReadState] = useState<ChangeRequestReadState>(() => loadReadState());
+  const [notificationsSupported, setNotificationsSupported] = useState(false);
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
+
+  const lastCommentIdRef = useRef<Record<string, string>>({});
+  const hasFetchedCommentsRef = useRef<Record<string, boolean>>({});
+  const suppressedNotificationIdsRef = useRef<Set<string>>(new Set());
 
   // Form state
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<ChangeRequest['priority']>('medium');
   const [status, setStatus] = useState<ChangeRequest['status']>('open');
+
+  useEffect(() => {
+    saveReadState(readState);
+  }, [readState]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if ('Notification' in window) {
+      setNotificationsSupported(true);
+      setNotificationPermission(Notification.permission);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === READ_STORAGE_KEY) {
+        setReadState(loadReadState());
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   const fetchChangeRequests = useCallback(async () => {
     try {
@@ -49,16 +90,56 @@ export default function ChangeRequestsPage() {
     }
   }, []);
 
+  const handleCommentUpdate = useCallback((changeRequestId: string, commentList: ChangeRequestComment[]) => {
+    const suppressed = suppressedNotificationIdsRef.current;
+    if (!commentList.length) {
+      hasFetchedCommentsRef.current[changeRequestId] = true;
+      lastCommentIdRef.current[changeRequestId] = '';
+      return;
+    }
+
+    const latestComment = commentList[commentList.length - 1];
+    const previousLatestId = lastCommentIdRef.current[changeRequestId];
+    lastCommentIdRef.current[changeRequestId] = latestComment.id;
+
+    const hadBaseline = hasFetchedCommentsRef.current[changeRequestId];
+    hasFetchedCommentsRef.current[changeRequestId] = true;
+
+    if (!hadBaseline || previousLatestId === latestComment.id) {
+      return;
+    }
+
+    if (expandedId === changeRequestId) {
+      return;
+    }
+
+    const readSet = new Set(readState[changeRequestId] ?? []);
+    const unreadCandidates = commentList.filter((comment) => !readSet.has(comment.id));
+    const notificationTarget = [...unreadCandidates]
+      .reverse()
+      .find((comment) => !suppressed.has(comment.id));
+
+    unreadCandidates.forEach((comment) => suppressed.delete(comment.id));
+
+    if (!notificationTarget) return;
+    if (!notificationsSupported || notificationPermission !== 'granted') return;
+
+    new Notification('Neuer Kommentar', {
+      body: `${notificationTarget.author}: ${notificationTarget.content}`,
+    });
+  }, [expandedId, notificationPermission, notificationsSupported, readState]);
+
   const fetchComments = useCallback(async (changeRequestId: string) => {
     try {
       const response = await fetch(`/api/change-requests/${changeRequestId}/comments`);
       if (!response.ok) throw new Error('Failed to fetch comments');
       const data = await response.json();
       setComments(prev => ({ ...prev, [changeRequestId]: data }));
+      handleCommentUpdate(changeRequestId, data);
     } catch {
       console.error('Failed to load comments');
     }
-  }, []);
+  }, [handleCommentUpdate]);
 
   useEffect(() => {
     fetchChangeRequests();
@@ -69,6 +150,46 @@ export default function ChangeRequestsPage() {
       fetchComments(expandedId);
     }
   }, [expandedId, fetchComments]);
+
+  useEffect(() => {
+    if (changeRequests.length === 0) return;
+    const refreshAllComments = () => {
+      changeRequests.forEach((cr) => {
+        fetchComments(cr.id);
+      });
+    };
+
+    refreshAllComments();
+    const interval = setInterval(refreshAllComments, COMMENT_POLL_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [changeRequests, fetchComments]);
+
+  useEffect(() => {
+    if (!expandedId) return;
+    const expandedComments = comments[expandedId];
+    if (!expandedComments?.length) return;
+    setReadState((prev) =>
+      markCommentsRead(
+        prev,
+        expandedId,
+        expandedComments.map((comment) => comment.id)
+      )
+    );
+  }, [comments, expandedId]);
+
+  const unreadCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    changeRequests.forEach((cr) => {
+      counts[cr.id] = getUnreadCount(comments[cr.id], readState, cr.id);
+    });
+    return counts;
+  }, [changeRequests, comments, readState]);
+
+  const requestNotificationPermission = async () => {
+    if (!notificationsSupported) return;
+    const permission = await Notification.requestPermission();
+    setNotificationPermission(permission);
+  };
 
   const resetForm = () => {
     setTitle('');
@@ -150,6 +271,9 @@ export default function ChangeRequestsPage() {
         }),
       });
       if (!response.ok) throw new Error('Failed to add comment');
+      const created = await response.json();
+      suppressedNotificationIdsRef.current.add(created.id);
+      setReadState((prev) => markCommentsRead(prev, changeRequestId, [created.id]));
       setNewComment('');
       fetchComments(changeRequestId);
     } catch {
@@ -182,6 +306,24 @@ export default function ChangeRequestsPage() {
           >
             {showForm ? 'Cancel' : 'New Request'}
           </button>
+          {notificationsSupported && notificationPermission !== 'granted' && (
+            <button
+              onClick={requestNotificationPermission}
+              disabled={notificationPermission === 'denied'}
+              style={{
+                backgroundColor: 'transparent',
+                color: 'var(--accent)',
+                border: '1px solid var(--accent)',
+                padding: '0.5rem 0.75rem',
+                borderRadius: '4px',
+                cursor: notificationPermission === 'denied' ? 'not-allowed' : 'pointer',
+                fontSize: '0.75rem',
+                opacity: notificationPermission === 'denied' ? 0.6 : 1,
+              }}
+            >
+              {notificationPermission === 'denied' ? 'Notifications Blocked' : 'Enable Notifications'}
+            </button>
+          )}
           <ThemeToggle />
         </div>
       </div>
@@ -240,6 +382,7 @@ export default function ChangeRequestsPage() {
                 >
                   <option value="open">Open</option>
                   <option value="in_progress">In Progress</option>
+                  <option value="in_discussion">In Discussion</option>
                   <option value="completed">Completed</option>
                   <option value="rejected">Rejected</option>
                 </select>
@@ -270,16 +413,19 @@ export default function ChangeRequestsPage() {
         <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No change requests yet. Create one to get started!</p>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {changeRequests.map((cr) => (
-            <div
-              key={cr.id}
-              style={{
-                border: '1px solid var(--card-border)',
-                borderRadius: '8px',
-                padding: '0.75rem',
-                backgroundColor: 'var(--card-background)',
-              }}
-            >
+          {changeRequests.map((cr) => {
+            const unreadCount = unreadCounts[cr.id] ?? 0;
+            return (
+              <div
+                key={cr.id}
+                data-testid={`change-request-card-${cr.id}`}
+                style={{
+                  border: '1px solid var(--card-border)',
+                  borderRadius: '8px',
+                  padding: '0.75rem',
+                  backgroundColor: 'var(--card-background)',
+                }}
+              >
               <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem', gap: '0.5rem' }}>
                 <h3 style={{ margin: 0, flex: '1 1 auto', minWidth: '150px', fontSize: 'clamp(0.95rem, 3vw, 1.1rem)', wordBreak: 'break-word' }}>{cr.title}</h3>
                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexShrink: 0 }}>
@@ -310,6 +456,7 @@ export default function ChangeRequestsPage() {
                   >
                     <option value="open">Open</option>
                     <option value="in_progress">In Progress</option>
+                    <option value="in_discussion">In Discussion</option>
                     <option value="completed">Completed</option>
                     <option value="rejected">Rejected</option>
                   </select>
@@ -331,9 +478,30 @@ export default function ChangeRequestsPage() {
                       borderRadius: '4px',
                       cursor: 'pointer',
                       fontSize: '0.75rem',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
                     }}
+                    data-testid="change-request-comments-toggle"
                   >
-                    {expandedId === cr.id ? 'Hide' : 'Comments'}
+                    <span>{expandedId === cr.id ? 'Hide' : 'Comments'}</span>
+                    {unreadCount > 0 && (
+                      <span
+                        data-testid="change-request-unread-count"
+                        style={{
+                          backgroundColor: 'var(--accent)',
+                          color: 'white',
+                          borderRadius: '999px',
+                          fontSize: '0.65rem',
+                          fontWeight: 600,
+                          padding: '0.05rem 0.4rem',
+                          minWidth: '1.2rem',
+                          textAlign: 'center',
+                        }}
+                      >
+                        {unreadCount}
+                      </span>
+                    )}
                   </button>
                   <button
                     onClick={() => handleEdit(cr)}
@@ -432,8 +600,9 @@ export default function ChangeRequestsPage() {
                   </div>
                 </div>
               )}
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
       )}
     </main>
