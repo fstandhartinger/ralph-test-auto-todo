@@ -33,26 +33,15 @@ function saveTodosToStorage(todos: Todo[]): void {
 }
 
 export default function Home() {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  // Load todos from localStorage on mount
-  useEffect(() => {
+  const [todos, setTodos] = useState<Todo[]>(() => {
     const storedTodos = loadTodosFromStorage();
-    if (storedTodos !== null) {
-      setTodos(storedTodos);
-    } else {
-      setTodos(defaultTodos);
-    }
-    setIsInitialized(true);
-  }, []);
+    return storedTodos ?? defaultTodos;
+  });
 
-  // Save todos to localStorage whenever they change (after initialization)
+  // Save todos to localStorage whenever they change
   useEffect(() => {
-    if (isInitialized) {
-      saveTodosToStorage(todos);
-    }
-  }, [todos, isInitialized]);
+    saveTodosToStorage(todos);
+  }, [todos]);
 
   const handleAddTodo = (title: string, targetDate?: string) => {
     const newTodo: Todo = {

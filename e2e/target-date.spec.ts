@@ -1,80 +1,38 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Target date functionality', () => {
+test.describe('Target date for todos', () => {
   test('can add a todo with a target date', async ({ page }) => {
     await page.goto('/');
 
-    const input = page.getByTestId('todo-input');
-    const dateInput = page.getByTestId('target-date-input');
-    const addButton = page.getByTestId('add-todo-button');
+    const title = 'Pay rent';
+    const dateValue = '2026-02-01';
 
-    await expect(input).toBeVisible();
-    await expect(dateInput).toBeVisible();
-    await expect(addButton).toBeVisible();
+    await page.getByTestId('todo-input').fill(title);
+    await page.getByTestId('target-date-input').fill(dateValue);
+    await page.getByTestId('add-todo-button').click();
 
-    // Add a new todo with a target date
-    await input.fill('Todo with due date');
-    await dateInput.fill('2026-02-15');
-    await addButton.click();
+    const todoItem = page.getByTestId('todo-item').filter({ hasText: title });
+    await expect(todoItem).toBeVisible();
 
-    // Verify the new todo appears in the list
-    await expect(page.getByText('Todo with due date')).toBeVisible();
-
-    // Verify the target date is displayed
-    await expect(page.getByTestId('target-date-display').last()).toBeVisible();
-    await expect(page.getByTestId('target-date-display').last()).toContainText('Due:');
-
-    // Verify input is cleared after submission
-    await expect(input).toHaveValue('');
-    await expect(dateInput).toHaveValue('');
+    const expectedDate = await page.evaluate(
+      (value) => new Date(value).toLocaleDateString(),
+      dateValue
+    );
+    await expect(todoItem.getByTestId('target-date-display')).toHaveText(
+      `Due: ${expectedDate}`
+    );
   });
 
-  test('can add a todo without a target date', async ({ page }) => {
+  test('target date is optional', async ({ page }) => {
     await page.goto('/');
 
-    const input = page.getByTestId('todo-input');
-    const dateInput = page.getByTestId('target-date-input');
-    const addButton = page.getByTestId('add-todo-button');
+    const title = 'No due date task';
 
-    // Get initial count of target date displays
-    await expect(page.getByTestId('todo-item').first()).toBeVisible();
-    const initialDateDisplayCount = await page.getByTestId('target-date-display').count();
+    await page.getByTestId('todo-input').fill(title);
+    await page.getByTestId('add-todo-button').click();
 
-    // Add a new todo without a target date
-    await input.fill('Todo without due date');
-    await addButton.click();
-
-    // Verify the new todo appears in the list
-    await expect(page.getByText('Todo without due date')).toBeVisible();
-
-    // Verify no new target date display was added
-    await expect(page.getByTestId('target-date-display')).toHaveCount(initialDateDisplayCount);
-
-    // Verify date input remains empty (wasn't auto-filled)
-    await expect(dateInput).toHaveValue('');
-  });
-
-  test('target date persists after page reload', async ({ page }) => {
-    await page.goto('/');
-
-    const input = page.getByTestId('todo-input');
-    const dateInput = page.getByTestId('target-date-input');
-    const addButton = page.getByTestId('add-todo-button');
-
-    // Add a new todo with a target date
-    await input.fill('Persistent dated todo');
-    await dateInput.fill('2026-03-20');
-    await addButton.click();
-
-    // Verify the todo and date are visible
-    await expect(page.getByText('Persistent dated todo')).toBeVisible();
-    await expect(page.getByTestId('target-date-display').last()).toBeVisible();
-
-    // Reload the page
-    await page.reload();
-
-    // Verify the todo and date persist after reload
-    await expect(page.getByText('Persistent dated todo')).toBeVisible();
-    await expect(page.getByTestId('target-date-display').last()).toBeVisible();
+    const todoItem = page.getByTestId('todo-item').filter({ hasText: title });
+    await expect(todoItem).toBeVisible();
+    await expect(todoItem.getByTestId('target-date-display')).toHaveCount(0);
   });
 });

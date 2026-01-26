@@ -109,7 +109,6 @@ test.describe('LocalStorage persistence', () => {
     await expect(todoText).toBeVisible();
 
     // Delete the todo
-    const deleteButton = page.getByRole('button', { name: 'Delete' }).first();
     // We need to find the delete button associated with our specific todo
     const todoItem = page.locator('[data-testid="todo-item"]').filter({ hasText: 'Todo to delete' });
     await todoItem.getByRole('button', { name: 'Delete' }).click();

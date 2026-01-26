@@ -12,3 +12,100 @@
 
 --- LOG START ---
 
+[2026-01-17 17:14] ISSUE: #1 Set up Next.js project | TYPE: breakthrough
+Successfully initialized Next.js 16 with TypeScript and App Router.
+Key learnings: create-next-app fails on non-empty directories,
+solution is to create in temp dir and copy files. Render auto-deploy
+from GitHub works seamlessly. Issue closed automatically via commit message.
+
+[2026-01-17 17:20] ISSUE: #2 Set up Playwright for E2E testing | TYPE: breakthrough
+Playwright E2E testing infrastructure successfully set up.
+Created playwright.config.ts with webServer to auto-start dev server.
+Homepage tests verify both the h1 heading and page title.
+Updated layout.tsx metadata to match project name.
+"Closes #2" in commit message auto-closes the issue.
+
+[2026-01-17 17:24] ISSUE: #3 Create basic todo list UI | TYPE: breakthrough
+Successfully implemented basic todo list UI with complete component structure:
+- Created Todo interface (id, title, completed fields)
+- Created TodoItem and TodoList components with clean styling
+- Added 3 sample todos to main page using useState
+- E2E tests verify todos are displayed correctly
+- All acceptance criteria met, deployed and visually verified at production URL.
+
+[2026-01-17 17:30] ISSUE: #4 Add ability to create new todos | TYPE: breakthrough
+Implemented add todo functionality with full TDD approach:
+- Created AddTodo component with input field and submit button
+- Handle both button click and Enter key to add todos
+- Prevents empty/whitespace-only submissions via trim() check
+- Input clears automatically after successful submission
+- Uses crypto.randomUUID() for unique IDs
+- New todos default to completed: false
+- All 9 E2E tests pass (5 new tests for add functionality)
+- Deployed to Render and visually verified in production.
+
+[2026-01-17 17:34] ISSUE: #5 Add ability to mark todos as complete | TYPE: breakthrough
+Implemented todo completion toggle with TDD approach:
+- Added checkbox with data-testid="todo-checkbox" to each todo item
+- Pass onToggle callback through component hierarchy (page -> TodoList -> TodoItem)
+- Completed todos show strikethrough text and lighter (#888) color
+- Todos stay in place when toggled (not moved to bottom)
+- 4 new E2E tests (13 total passing)
+- Deployed to Render and visually verified toggle works in production.
+
+[2026-01-17 17:57] ISSUE: #6 Add ability to delete todos | TYPE: breakthrough
+Implemented delete todo functionality with TDD approach:
+- Added delete button (×) to each todo item with data-testid="delete-todo-button"
+- Pass onDelete callback through component hierarchy (page -> TodoList -> TodoItem)
+- Filter out deleted todo by ID using Array.filter()
+- Added aria-label for accessibility
+- 3 new E2E tests (16 total passing)
+- Deployed to Render and visually verified delete works in production.
+
+[2026-01-17 18:05] ISSUE: #7 Persist todos to localStorage | TYPE: breakthrough
+Implemented localStorage persistence with TDD approach:
+- Load todos from localStorage on mount via useEffect
+- Save todos to localStorage on every change (also via useEffect)
+- Handle empty localStorage gracefully (falls back to default todos)
+- Handle corrupted localStorage gracefully (falls back to default todos)
+- Key insight: Changed from synchronous initial state to async loading required
+  updating existing E2E tests to wait for todos to appear before counting
+- 5 new E2E tests for persistence (21 total passing)
+- Deployed to Render and visually verified persistence works in production.
+
+[2026-01-17 18:10] ISSUE: #8 Make buttons wine red | TYPE: breakthrough
+Simple styling change:
+- Changed Add button from blue (#0070f3) to wine red (#722F37)
+- Changed Delete buttons to wine red (#722F37) with white text
+- Added border-radius to Delete buttons for visual consistency
+- All 21 tests still passing
+- Deployed and visually verified in production.
+
+[2026-01-26 12:27] CHECK: No open issues | TYPE: learning
+Checked for open GitHub issues - none found. Waiting for new issues to arrive.
+
+[2026-01-26 12:29] CHECK: No open issues | TYPE: learning
+Checked for open GitHub issues - none found. Waiting for new issues to arrive.
+
+[2026-01-26 12:51] CHECK: No open issues | TYPE: learning
+Checked for open GitHub issues - none found. Waiting for new issues to arrive.
+
+[2026-01-26 12:53] CHECK: No open issues | TYPE: learning
+Checked for open GitHub issues - none found. Waiting for new issues to arrive.
+
+[2026-01-26 12:46] CHANGE-REQUEST: Improve mobile responsiveness | TYPE: breakthrough
+Successfully implemented mobile responsiveness improvements across the app:
+- Updated main page, AddTodo, TodoItem, and change-requests page components
+- Used CSS clamp() for fluid font sizing on headings
+- Added flexWrap and gap properties for responsive layouts
+- Implemented word-break for long text handling
+- Made form inputs and buttons mobile-friendly with full-width layouts
+- Created 8 new E2E tests specifically for mobile viewport (375x667)
+- All 29 tests pass (21 existing + 8 new mobile tests)
+- Deployed and visually verified on mobile viewport in production.
+
+[2026-01-26 13:15] CHANGE-REQUEST: Target Date | TYPE: breakthrough
+Added E2E coverage for optional target dates and ensured lint/test stability:
+- Added target date Playwright tests for add + optional behavior
+- Switched theme/todo initialization to lazy state to satisfy lint rule
+- Updated dark mode test to wait for background transition

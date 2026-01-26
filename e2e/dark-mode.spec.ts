@@ -99,11 +99,12 @@ test.describe('Dark Mode', () => {
     const themeToggle = page.getByTestId('theme-toggle');
     await themeToggle.click();
 
-    // Check body background color is dark
+    const htmlElement = page.locator('html');
+    await expect(htmlElement).toHaveAttribute('data-theme', 'dark');
+
+    // Check body background color is dark after the transition
     const body = page.locator('body');
-    const bgColor = await body.evaluate((el) => getComputedStyle(el).backgroundColor);
-    // Dark mode background should be close to #0a0a0a (rgb(10, 10, 10))
-    expect(bgColor).toBe('rgb(10, 10, 10)');
+    await expect(body).toHaveCSS('background-color', 'rgb(10, 10, 10)');
   });
 
   test('theme toggle has correct aria-label', async ({ page }) => {

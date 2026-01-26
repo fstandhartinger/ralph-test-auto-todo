@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useCallback } from 'react';
 import { ChangeRequest, ChangeRequestComment } from '../types/change-request';
 import { ThemeToggle } from '../components/ThemeToggle';
@@ -165,7 +166,7 @@ export default function ChangeRequestsPage() {
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '0.75rem' }}>
         <h1 style={{ fontSize: 'clamp(1.25rem, 5vw, 1.75rem)', margin: 0 }}>Change Requests</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <a href="/" style={{ color: 'var(--accent)', fontSize: '0.875rem' }}>Back to Todos</a>
+          <Link href="/" style={{ color: 'var(--accent)', fontSize: '0.875rem' }}>Back to Todos</Link>
           <button
             onClick={() => { resetForm(); setShowForm(!showForm); }}
             style={{
