@@ -1,87 +1,50 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Toggle todo completion', () => {
-  test('can toggle a todo as completed', async ({ page }) => {
+test.describe('Move todo cards across columns', () => {
+  test('can move a todo from Todo to In Progress', async ({ page }) => {
     await page.goto('/');
 
-    // Find the first todo item
-    const firstTodoItem = page.getByTestId('todo-item').first();
-    const firstTodoCheckbox = firstTodoItem.getByTestId('todo-checkbox');
-    const firstTodoText = firstTodoItem.locator('span').first();
+    const todoColumn = page.locator('[data-testid="kanban-column"][data-status="todo"]');
+    const inProgressColumn = page.locator('[data-testid="kanban-column"][data-status="in_progress"]');
 
-    // Verify checkbox exists and is unchecked initially
-    await expect(firstTodoCheckbox).toBeVisible();
-    await expect(firstTodoCheckbox).not.toBeChecked();
+    const card = todoColumn.locator('[data-testid="todo-item"]').filter({ hasText: 'Learn React' });
+    await expect(card).toBeVisible();
 
-    // Verify text is not strikethrough initially
-    await expect(firstTodoText).not.toHaveCSS('text-decoration-line', 'line-through');
+    await card.getByTestId('todo-move-right').click();
 
-    // Click the checkbox to mark as completed
-    await firstTodoCheckbox.click();
-
-    // Verify checkbox is now checked
-    await expect(firstTodoCheckbox).toBeChecked();
-
-    // Verify text has strikethrough styling
-    await expect(firstTodoText).toHaveCSS('text-decoration-line', 'line-through');
-
-    // Verify text has lighter/muted color (--text-muted is #666 = rgb(102, 102, 102))
-    await expect(firstTodoText).toHaveCSS('color', 'rgb(102, 102, 102)');
+    await expect(todoColumn.getByText('Learn React')).toHaveCount(0);
+    await expect(inProgressColumn.getByText('Learn React')).toBeVisible();
   });
 
-  test('can toggle a completed todo back to incomplete', async ({ page }) => {
+  test('can move a todo from In Progress to Done and back', async ({ page }) => {
     await page.goto('/');
 
-    const firstTodoItem = page.getByTestId('todo-item').first();
-    const firstTodoCheckbox = firstTodoItem.getByTestId('todo-checkbox');
-    const firstTodoText = firstTodoItem.locator('span').first();
+    const inProgressColumn = page.locator('[data-testid="kanban-column"][data-status="in_progress"]');
+    const doneColumn = page.locator('[data-testid="kanban-column"][data-status="done"]');
 
-    // Mark as completed first
-    await firstTodoCheckbox.click();
-    await expect(firstTodoCheckbox).toBeChecked();
-    await expect(firstTodoText).toHaveCSS('text-decoration-line', 'line-through');
+    const card = inProgressColumn.locator('[data-testid="todo-item"]').filter({ hasText: 'Build a todo app' });
+    await expect(card).toBeVisible();
 
-    // Toggle back to incomplete
-    await firstTodoCheckbox.click();
+    await card.getByTestId('todo-move-right').click();
+    await expect(doneColumn.getByText('Build a todo app')).toBeVisible();
 
-    // Verify checkbox is unchecked
-    await expect(firstTodoCheckbox).not.toBeChecked();
+    const movedCard = doneColumn.locator('[data-testid="todo-item"]').filter({ hasText: 'Build a todo app' });
+    await movedCard.getByTestId('todo-move-left').click();
 
-    // Verify text is no longer strikethrough
-    await expect(firstTodoText).not.toHaveCSS('text-decoration-line', 'line-through');
+    await expect(inProgressColumn.getByText('Build a todo app')).toBeVisible();
   });
 
-  test('completed todo stays in place (not moved)', async ({ page }) => {
+  test('edge columns disable unavailable moves', async ({ page }) => {
     await page.goto('/');
 
-    // Get initial order of todos
-    const todoItems = page.getByTestId('todo-item');
-    const firstTodoTextBefore = await todoItems.first().locator('span').first().textContent();
+    const todoCard = page
+      .locator('[data-testid="kanban-column"][data-status="todo"]')
+      .locator('[data-testid="todo-item"]').filter({ hasText: 'Learn React' });
+    await expect(todoCard.getByTestId('todo-move-left')).toBeDisabled();
 
-    // Mark the first todo as completed
-    const firstTodoCheckbox = todoItems.first().getByTestId('todo-checkbox');
-    await firstTodoCheckbox.click();
-
-    // Verify the first todo is still in the first position
-    const firstTodoTextAfter = await todoItems.first().locator('span').first().textContent();
-    expect(firstTodoTextAfter).toBe(firstTodoTextBefore);
-  });
-
-  test('multiple todos can be toggled independently', async ({ page }) => {
-    await page.goto('/');
-
-    const todoItems = page.getByTestId('todo-item');
-    const firstCheckbox = todoItems.nth(0).getByTestId('todo-checkbox');
-    const secondCheckbox = todoItems.nth(1).getByTestId('todo-checkbox');
-    const thirdCheckbox = todoItems.nth(2).getByTestId('todo-checkbox');
-
-    // Toggle first and third
-    await firstCheckbox.click();
-    await thirdCheckbox.click();
-
-    // Verify states
-    await expect(firstCheckbox).toBeChecked();
-    await expect(secondCheckbox).not.toBeChecked();
-    await expect(thirdCheckbox).toBeChecked();
+    const doneCard = page
+      .locator('[data-testid="kanban-column"][data-status="done"]')
+      .locator('[data-testid="todo-item"]').filter({ hasText: 'Deploy to production' });
+    await expect(doneCard.getByTestId('todo-move-right')).toBeDisabled();
   });
 });

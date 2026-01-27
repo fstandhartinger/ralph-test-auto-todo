@@ -28,35 +28,33 @@ test.describe('LocalStorage persistence', () => {
     await expect(page.getByText('Persistent todo item')).toBeVisible();
   });
 
-  test('completed state persists after page reload', async ({ page }) => {
+  test('column state persists after page reload', async ({ page }) => {
     await page.goto('/');
 
     const input = page.getByTestId('todo-input');
 
     // Add a new todo
-    await input.fill('Todo to complete');
+    await input.fill('Todo to move');
     await input.press('Enter');
 
-    // Find and toggle the new todo using the checkbox
-    const todoItemContainer = page.locator('[data-testid="todo-item"]').filter({ hasText: 'Todo to complete' });
-    const checkbox = todoItemContainer.getByTestId('todo-checkbox');
-    const todoText = todoItemContainer.locator('span').first();
-    await expect(checkbox).toBeVisible();
-    await checkbox.click();
+    const todoColumn = page.locator('[data-testid="kanban-column"][data-status="todo"]');
+    const inProgressColumn = page.locator('[data-testid="kanban-column"][data-status="in_progress"]');
+    const doneColumn = page.locator('[data-testid="kanban-column"][data-status="done"]');
 
-    // Verify it has line-through style (completed)
-    await expect(todoText).toHaveCSS('text-decoration-line', 'line-through');
+    const todoCard = todoColumn.locator('[data-testid="todo-item"]').filter({ hasText: 'Todo to move' });
+    await todoCard.getByTestId('todo-move-right').click();
+
+    const inProgressCard = inProgressColumn.locator('[data-testid="todo-item"]').filter({ hasText: 'Todo to move' });
+    await inProgressCard.getByTestId('todo-move-right').click();
+
+    await expect(doneColumn.getByText('Todo to move')).toBeVisible();
 
     // Reload the page
     await page.reload();
 
-    // Verify the todo is still completed after reload
-    const persistedTodoContainer = page.locator('[data-testid="todo-item"]').filter({ hasText: 'Todo to complete' });
-    const persistedCheckbox = persistedTodoContainer.getByTestId('todo-checkbox');
-    const persistedTodoText = persistedTodoContainer.locator('span').first();
-    await expect(persistedTodoText).toBeVisible();
-    await expect(persistedCheckbox).toBeChecked();
-    await expect(persistedTodoText).toHaveCSS('text-decoration-line', 'line-through');
+    // Verify the todo is still in the done column after reload
+    const persistedDoneColumn = page.locator('[data-testid="kanban-column"][data-status="done"]');
+    await expect(persistedDoneColumn.getByText('Todo to move')).toBeVisible();
   });
 
   test('app works correctly with empty localStorage', async ({ page }) => {
@@ -111,7 +109,7 @@ test.describe('LocalStorage persistence', () => {
     // Delete the todo
     // We need to find the delete button associated with our specific todo
     const todoItem = page.locator('[data-testid="todo-item"]').filter({ hasText: 'Todo to delete' });
-    await todoItem.getByRole('button', { name: 'Delete' }).click();
+    await todoItem.getByTestId('delete-todo-button').click();
 
     // Verify the todo is gone
     await expect(page.getByText('Todo to delete')).not.toBeVisible();

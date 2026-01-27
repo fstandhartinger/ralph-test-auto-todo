@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Todo } from './types/todo';
+import { Todo, TodoStatus } from './types/todo';
 import { ChangeRequest, ChangeRequestComment } from './types/change-request';
-import { TodoList } from './components/TodoList';
+import { KanbanBoard } from './components/KanbanBoard';
 import { AddTodo } from './components/AddTodo';
 import { ThemeToggle } from './components/ThemeToggle';
 import {
@@ -16,9 +16,9 @@ const LOCAL_STORAGE_KEY = 'ralph-todos';
 const CHANGE_REQUESTS_POLL_INTERVAL_MS = 6000;
 
 const defaultTodos: Todo[] = [
-  { id: '1', title: 'Learn React', completed: false },
-  { id: '2', title: 'Build a todo app', completed: false },
-  { id: '3', title: 'Deploy to production', completed: false },
+  { id: '1', title: 'Learn React', status: 'todo' },
+  { id: '2', title: 'Build a todo app', status: 'in_progress' },
+  { id: '3', title: 'Deploy to production', status: 'done' },
 ];
 
 function loadTodosFromStorage(): Todo[] | null {
@@ -26,9 +26,12 @@ function loadTodosFromStorage(): Todo[] | null {
   try {
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (!stored) return null;
-    const parsed = JSON.parse(stored);
+    const parsed = JSON.parse(stored) as unknown;
     if (!Array.isArray(parsed)) return null;
-    return parsed as Todo[];
+    const normalized = parsed
+      .map((item) => normalizeStoredTodo(item))
+      .filter((item): item is Todo => item !== null);
+    return normalized.length ? normalized : null;
   } catch {
     return null;
   }
@@ -37,6 +40,26 @@ function loadTodosFromStorage(): Todo[] | null {
 function saveTodosToStorage(todos: Todo[]): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(todos));
+}
+
+function normalizeStoredTodo(item: unknown): Todo | null {
+  if (!item || typeof item !== 'object') return null;
+  const record = item as Record<string, unknown>;
+  const id = typeof record.id === 'string' ? record.id : null;
+  const title = typeof record.title === 'string' ? record.title : null;
+  if (!id || !title) return null;
+  const rawStatus = record.status;
+  const status: TodoStatus =
+    rawStatus === 'todo' || rawStatus === 'in_progress' || rawStatus === 'done'
+      ? rawStatus
+      : typeof record.completed === 'boolean'
+        ? record.completed
+          ? 'done'
+          : 'todo'
+        : 'todo';
+  const targetDate =
+    typeof record.targetDate === 'string' ? record.targetDate : undefined;
+  return { id, title, status, targetDate };
 }
 
 export default function Home() {
@@ -104,22 +127,20 @@ export default function Home() {
     const newTodo: Todo = {
       id: crypto.randomUUID(),
       title,
-      completed: false,
+      status: 'todo',
       targetDate,
     };
-    setTodos([...todos, newTodo]);
+    setTodos((prevTodos) => [...prevTodos, newTodo]);
   };
 
-  const handleToggleTodo = (id: string) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
+  const handleUpdateStatus = (id: string, status: TodoStatus) => {
+    setTodos((prevTodos) =>
+      prevTodos.map((todo) => (todo.id === id ? { ...todo, status } : todo))
     );
   };
 
   const handleDeleteTodo = (id: string) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
+    setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
   };
 
   return (
@@ -127,7 +148,7 @@ export default function Home() {
       style={{
         padding: '1rem',
         fontFamily: 'system-ui, sans-serif',
-        maxWidth: '600px',
+        maxWidth: '1100px',
         margin: '0 auto',
       }}
     >
@@ -158,7 +179,7 @@ export default function Home() {
         </div>
       </div>
       <AddTodo onAdd={handleAddTodo} />
-      <TodoList todos={todos} onToggle={handleToggleTodo} onDelete={handleDeleteTodo} />
+      <KanbanBoard todos={todos} onUpdateStatus={handleUpdateStatus} onDelete={handleDeleteTodo} />
     </main>
   );
 }

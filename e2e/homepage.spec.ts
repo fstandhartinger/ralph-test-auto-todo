@@ -14,20 +14,34 @@ test('homepage has correct page title', async ({ page }) => {
   await expect(page).toHaveTitle(/ralph-test-auto-todo/);
 });
 
-test('homepage displays todo list with at least 3 todos', async ({ page }) => {
+test('homepage displays kanban board columns with starter cards', async ({ page }) => {
   await page.goto('/');
 
-  const todoList = page.getByTestId('todo-list');
-  await expect(todoList).toBeVisible();
+  const kanbanBoard = page.getByTestId('kanban-board');
+  await expect(kanbanBoard).toBeVisible();
 
-  const todoItems = page.getByTestId('todo-item');
-  await expect(todoItems).toHaveCount(3);
+  const columns = page.getByTestId('kanban-column');
+  await expect(columns).toHaveCount(3);
+
+  const todoColumn = page.locator('[data-testid="kanban-column"][data-status="todo"]');
+  const inProgressColumn = page.locator('[data-testid="kanban-column"][data-status="in_progress"]');
+  const doneColumn = page.locator('[data-testid="kanban-column"][data-status="done"]');
+
+  await expect(todoColumn.getByTestId('todo-item')).toHaveCount(1);
+  await expect(inProgressColumn.getByTestId('todo-item')).toHaveCount(1);
+  await expect(doneColumn.getByTestId('todo-item')).toHaveCount(1);
 });
 
-test('each todo item displays its title', async ({ page }) => {
+test('each starter card displays its title in the correct column', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.getByText('Learn React')).toBeVisible();
-  await expect(page.getByText('Build a todo app')).toBeVisible();
-  await expect(page.getByText('Deploy to production')).toBeVisible();
+  await expect(
+    page.locator('[data-testid="kanban-column"][data-status="todo"]').getByText('Learn React')
+  ).toBeVisible();
+  await expect(
+    page.locator('[data-testid="kanban-column"][data-status="in_progress"]').getByText('Build a todo app')
+  ).toBeVisible();
+  await expect(
+    page.locator('[data-testid="kanban-column"][data-status="done"]').getByText('Deploy to production')
+  ).toBeVisible();
 });

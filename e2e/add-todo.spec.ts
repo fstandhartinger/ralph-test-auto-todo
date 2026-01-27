@@ -14,8 +14,10 @@ test.describe('Add todo functionality', () => {
     await input.fill('My new todo item');
     await addButton.click();
 
-    // Verify the new todo appears in the list
-    await expect(page.getByText('My new todo item')).toBeVisible();
+    const todoColumn = page.locator('[data-testid="kanban-column"][data-status="todo"]');
+
+    // Verify the new todo appears in the todo column
+    await expect(todoColumn.getByText('My new todo item')).toBeVisible();
 
     // Verify input is cleared after submission
     await expect(input).toHaveValue('');
@@ -29,8 +31,10 @@ test.describe('Add todo functionality', () => {
     await input.fill('Todo added with Enter');
     await input.press('Enter');
 
-    // Verify the new todo appears in the list
-    await expect(page.getByText('Todo added with Enter')).toBeVisible();
+    const todoColumn = page.locator('[data-testid="kanban-column"][data-status="todo"]');
+
+    // Verify the new todo appears in the todo column
+    await expect(todoColumn.getByText('Todo added with Enter')).toBeVisible();
 
     // Verify input is cleared
     await expect(input).toHaveValue('');
@@ -74,7 +78,7 @@ test.describe('Add todo functionality', () => {
     await expect(page.getByTestId('todo-item')).toHaveCount(initialTodoCount);
   });
 
-  test('new todo has unique ID and is not completed', async ({ page }) => {
+  test('new todo starts in the Todo column', async ({ page }) => {
     await page.goto('/');
 
     const input = page.getByTestId('todo-input');
@@ -83,9 +87,10 @@ test.describe('Add todo functionality', () => {
     await input.fill('Check todo properties');
     await input.press('Enter');
 
-    // The new todo should appear and not be styled as completed (no line-through)
-    const newTodo = page.getByText('Check todo properties');
+    const todoColumn = page.locator('[data-testid="kanban-column"][data-status="todo"]');
+    const newTodo = todoColumn.locator('[data-testid="todo-item"]').filter({ hasText: 'Check todo properties' });
+
     await expect(newTodo).toBeVisible();
-    await expect(newTodo).not.toHaveCSS('text-decoration', /line-through/);
+    await expect(newTodo.getByTestId('todo-move-left')).toBeDisabled();
   });
 });

@@ -113,3 +113,10 @@ Added E2E coverage for optional target dates and ensured lint/test stability:
 [2026-01-26 14:50] CHANGE-REQUEST: Bessere Kommentarfunktion | TYPE: breakthrough
 - Added comment polling with unread badges + notification support, and In Discussion status handling
 - Added Playwright coverage for unread counts and notifications using mocked change-request APIs
+2026-01-26T14:02:09Z - Blocker: Change Requests API returned 500 (Failed to fetch change requests) when checking for work.
+2026-01-26T14:15:09Z Blocker: Change Requests API returned 500 (Failed to fetch change requests).
+
+[2026-01-27 10:10] CHANGE-REQUEST: Kanban Board | TYPE: breakthrough
+- Replaced the single todo list with a three-column Kanban board
+- Added move-left/right controls and status persistence via localStorage
+- Updated Playwright coverage for column moves, persistence, and homepage checks

@@ -11,7 +11,7 @@ test.describe('Delete todo', () => {
     expect(initialCount).toBeGreaterThan(0);
 
     // Get the title of the first todo to verify it's deleted
-    const firstTodoTitle = await todoItems.first().locator('span').first().textContent();
+    const firstTodoTitle = await todoItems.first().locator('p').first().textContent();
 
     // Click the delete button on the first todo
     const firstDeleteButton = todoItems.first().getByTestId('delete-todo-button');
@@ -22,8 +22,9 @@ test.describe('Delete todo', () => {
     await expect(todoItems).toHaveCount(initialCount - 1);
 
     // Verify the deleted todo is no longer in the list
-    const remainingTitles = await todoItems.locator('span').first().allTextContents();
-    expect(remainingTitles).not.toContain(firstTodoTitle);
+    if (firstTodoTitle) {
+      await expect(page.getByText(firstTodoTitle)).toHaveCount(0);
+    }
   });
 
   test('can delete all todos one by one', async ({ page }) => {
