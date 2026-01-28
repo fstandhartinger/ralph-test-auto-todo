@@ -28,6 +28,15 @@ const priorityColors: Record<ChangeRequest['priority'], string> = {
 };
 
 const COMMENT_POLL_INTERVAL_MS = 4000;
+const formatTimestamp = (value: string) =>
+  new Date(value).toLocaleString(undefined, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
 
 export default function ChangeRequestsPage() {
   const [changeRequests, setChangeRequests] = useState<ChangeRequest[]>([]);
@@ -464,8 +473,8 @@ export default function ChangeRequestsPage() {
               </div>
               <p style={{ margin: '0.5rem 0', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', fontSize: '0.9rem', wordBreak: 'break-word' }}>{cr.description}</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-light)', gap: '0.5rem' }}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
-                  Created: {new Date(cr.created_at).toLocaleDateString()}
+                <span data-testid="change-request-created-at" style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                  Created: {formatTimestamp(cr.created_at)}
                 </span>
                 <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
                   <button
@@ -555,7 +564,7 @@ export default function ChangeRequestsPage() {
                           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: '0.25rem', gap: '0.25rem' }}>
                             <strong style={{ color: 'var(--accent)', fontSize: '0.85rem' }}>{comment.author}</strong>
                             <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem' }}>
-                              {new Date(comment.created_at).toLocaleString()}
+                              {formatTimestamp(comment.created_at)}
                             </span>
                           </div>
                           <p style={{ margin: 0, whiteSpace: 'pre-wrap', fontSize: '0.85rem', wordBreak: 'break-word' }}>{comment.content}</p>
