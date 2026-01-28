@@ -120,3 +120,5 @@ Added E2E coverage for optional target dates and ensured lint/test stability:
 - Replaced the single todo list with a three-column Kanban board
 - Added move-left/right controls and status persistence via localStorage
 - Updated Playwright coverage for column moves, persistence, and homepage checks
+[2026-01-28 14:31] CHANGE-REQUEST: Zeittempel bei created | TYPE: breakthrough
+- Ensured change_requests timestamps are stored with seconds precision and added Playwright coverage for creation flow.

@@ -87,7 +87,54 @@ async function setupChangeRequestMocks(page: import('@playwright/test').Page) {
     await route.fallback();
   });
 
-  return { changeRequestId, addRemoteComment };
+  return { changeRequestId, addRemoteComment, createdAt: now };
+}
+
+async function setupChangeRequestCreateMocks(page: import('@playwright/test').Page) {
+  const changeRequestId = makeId('cr');
+  const createdAt = '2026-01-28T05:41:53.123Z';
+  const changeRequests: ChangeRequest[] = [];
+
+  await page.route('**/api/change-requests', async (route) => {
+    const method = route.request().method();
+
+    if (method === 'GET') {
+      await route.fulfill({ json: changeRequests });
+      return;
+    }
+
+    if (method === 'POST') {
+      const payload = route.request().postDataJSON() as {
+        title?: string;
+        description?: string;
+        priority?: ChangeRequest['priority'];
+      } | null;
+      const created: ChangeRequest = {
+        id: changeRequestId,
+        title: payload?.title ?? 'Untitled',
+        description: payload?.description ?? '',
+        status: 'open',
+        priority: payload?.priority ?? 'medium',
+        created_at: createdAt,
+        updated_at: createdAt,
+      };
+      changeRequests.unshift(created);
+      await route.fulfill({ status: 201, json: created });
+      return;
+    }
+
+    await route.fallback();
+  });
+
+  await page.route('**/api/change-requests/*/comments', async (route) => {
+    if (route.request().method() === 'GET') {
+      await route.fulfill({ json: [] });
+      return;
+    }
+    await route.fallback();
+  });
+
+  return { changeRequestId, createdAt };
 }
 
 test('shows unread comment badges and clears when read', async ({ page }) => {
@@ -112,6 +159,53 @@ test('shows unread comment badges and clears when read', async ({ page }) => {
 
   await page.goto('/');
   await expect(page.getByTestId('change-requests-unread-count')).toHaveCount(0, { timeout: 10000 });
+});
+
+test('shows created timestamp with seconds precision', async ({ page }) => {
+  const { changeRequestId, createdAt } = await setupChangeRequestMocks(page);
+
+  await page.goto('/change-requests');
+  const card = page.getByTestId(`change-request-card-${changeRequestId}`);
+  await expect(card).toBeVisible();
+
+  const expectedTimestamp = await page.evaluate((iso) => {
+    return new Date(iso).toLocaleString(undefined, {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  }, createdAt);
+
+  await expect(card.getByTestId('change-request-created-at')).toHaveText(`Created: ${expectedTimestamp}`);
+});
+
+test('shows created timestamp with seconds precision after creating a request', async ({ page }) => {
+  const { changeRequestId, createdAt } = await setupChangeRequestCreateMocks(page);
+
+  await page.goto('/change-requests');
+  await page.getByRole('button', { name: 'New Request' }).click();
+  await page.getByPlaceholder('Brief title for the request').fill('Seconds precision request');
+  await page.getByPlaceholder('Detailed description of the feature or issue...').fill('Ensure created timestamp includes seconds.');
+  await page.getByRole('button', { name: 'Submit' }).click();
+
+  const card = page.getByTestId(`change-request-card-${changeRequestId}`);
+  await expect(card).toBeVisible();
+
+  const expectedTimestamp = await page.evaluate((iso) => {
+    return new Date(iso).toLocaleString(undefined, {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  }, createdAt);
+
+  await expect(card.getByTestId('change-request-created-at')).toHaveText(`Created: ${expectedTimestamp}`);
 });
 
 test('fires a notification when new comments arrive', async ({ page, context }) => {
