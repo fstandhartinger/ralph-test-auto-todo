@@ -125,3 +125,8 @@ Added E2E coverage for optional target dates and ensured lint/test stability:
 
 [2026-01-28 14:54] CHANGE-REQUEST: Menü für Farbauswahl | TYPE: breakthrough
 - Replaced the theme toggle with a labeled menu entry that lets users pick light or dark, and updated Playwright coverage.
+[2026-01-28 15:09] CHANGE-REQUEST: neuer Status Blocked | TYPE: blocker
+- Change Requests API PUT /api/change-requests/{id} returned 500 when setting status to in_progress (Failed to update change request).
+[2026-01-28 15:19] CHANGE-REQUEST: neuer Status Blocked | TYPE: breakthrough
+- Added Blocked column with editable reason + timestamp tracking, plus persistence handling.
+- Updated kanban move flow + added Playwright coverage for blocked reason and new column order.

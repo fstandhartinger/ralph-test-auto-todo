@@ -50,7 +50,10 @@ function normalizeStoredTodo(item: unknown): Todo | null {
   if (!id || !title) return null;
   const rawStatus = record.status;
   const status: TodoStatus =
-    rawStatus === 'todo' || rawStatus === 'in_progress' || rawStatus === 'done'
+    rawStatus === 'todo' ||
+    rawStatus === 'in_progress' ||
+    rawStatus === 'blocked' ||
+    rawStatus === 'done'
       ? rawStatus
       : typeof record.completed === 'boolean'
         ? record.completed
@@ -59,7 +62,11 @@ function normalizeStoredTodo(item: unknown): Todo | null {
         : 'todo';
   const targetDate =
     typeof record.targetDate === 'string' ? record.targetDate : undefined;
-  return { id, title, status, targetDate };
+  const blockedReason =
+    typeof record.blockedReason === 'string' ? record.blockedReason : undefined;
+  const blockedAt =
+    typeof record.blockedAt === 'string' ? record.blockedAt : undefined;
+  return { id, title, status, targetDate, blockedReason, blockedAt };
 }
 
 export default function Home() {
@@ -135,7 +142,31 @@ export default function Home() {
 
   const handleUpdateStatus = (id: string, status: TodoStatus) => {
     setTodos((prevTodos) =>
-      prevTodos.map((todo) => (todo.id === id ? { ...todo, status } : todo))
+      prevTodos.map((todo) => {
+        if (todo.id !== id) return todo;
+        if (status === 'blocked') {
+          return {
+            ...todo,
+            status,
+            blockedReason: todo.blockedReason ?? '',
+            blockedAt: todo.blockedAt,
+          };
+        }
+        const hadBlockedMetadata = todo.blockedReason || todo.blockedAt;
+        if (hadBlockedMetadata) {
+          return { ...todo, status, blockedReason: undefined, blockedAt: undefined };
+        }
+        return { ...todo, status };
+      })
+    );
+  };
+
+  const handleUpdateBlockedReason = (id: string, reason: string) => {
+    setTodos((prevTodos) =>
+      prevTodos.map((todo) => {
+        if (todo.id !== id || todo.status !== 'blocked') return todo;
+        return { ...todo, blockedReason: reason, blockedAt: new Date().toISOString() };
+      })
     );
   };
 
@@ -179,7 +210,12 @@ export default function Home() {
         </div>
       </div>
       <AddTodo onAdd={handleAddTodo} />
-      <KanbanBoard todos={todos} onUpdateStatus={handleUpdateStatus} onDelete={handleDeleteTodo} />
+      <KanbanBoard
+        todos={todos}
+        onUpdateStatus={handleUpdateStatus}
+        onUpdateBlockedReason={handleUpdateBlockedReason}
+        onDelete={handleDeleteTodo}
+      />
     </main>
   );
 }

@@ -39,6 +39,7 @@ test.describe('LocalStorage persistence', () => {
 
     const todoColumn = page.locator('[data-testid="kanban-column"][data-status="todo"]');
     const inProgressColumn = page.locator('[data-testid="kanban-column"][data-status="in_progress"]');
+    const blockedColumn = page.locator('[data-testid="kanban-column"][data-status="blocked"]');
     const doneColumn = page.locator('[data-testid="kanban-column"][data-status="done"]');
 
     const todoCard = todoColumn.locator('[data-testid="todo-item"]').filter({ hasText: 'Todo to move' });
@@ -46,6 +47,9 @@ test.describe('LocalStorage persistence', () => {
 
     const inProgressCard = inProgressColumn.locator('[data-testid="todo-item"]').filter({ hasText: 'Todo to move' });
     await inProgressCard.getByTestId('todo-move-right').click();
+
+    const blockedCard = blockedColumn.locator('[data-testid="todo-item"]').filter({ hasText: 'Todo to move' });
+    await blockedCard.getByTestId('todo-move-right').click();
 
     await expect(doneColumn.getByText('Todo to move')).toBeVisible();
 

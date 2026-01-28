@@ -21,14 +21,16 @@ test('homepage displays kanban board columns with starter cards', async ({ page 
   await expect(kanbanBoard).toBeVisible();
 
   const columns = page.getByTestId('kanban-column');
-  await expect(columns).toHaveCount(3);
+  await expect(columns).toHaveCount(4);
 
   const todoColumn = page.locator('[data-testid="kanban-column"][data-status="todo"]');
   const inProgressColumn = page.locator('[data-testid="kanban-column"][data-status="in_progress"]');
+  const blockedColumn = page.locator('[data-testid="kanban-column"][data-status="blocked"]');
   const doneColumn = page.locator('[data-testid="kanban-column"][data-status="done"]');
 
   await expect(todoColumn.getByTestId('todo-item')).toHaveCount(1);
   await expect(inProgressColumn.getByTestId('todo-item')).toHaveCount(1);
+  await expect(blockedColumn.getByTestId('todo-item')).toHaveCount(0);
   await expect(doneColumn.getByTestId('todo-item')).toHaveCount(1);
 });
 

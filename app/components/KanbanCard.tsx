@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Todo } from '../types/todo';
 
 interface KanbanCardProps {
@@ -6,6 +7,7 @@ interface KanbanCardProps {
   onMoveRight: () => void;
   canMoveLeft: boolean;
   canMoveRight: boolean;
+  onUpdateBlockedReason: (id: string, reason: string) => void;
   onDelete: () => void;
 }
 
@@ -15,8 +17,28 @@ export function KanbanCard({
   onMoveRight,
   canMoveLeft,
   canMoveRight,
+  onUpdateBlockedReason,
   onDelete,
 }: KanbanCardProps) {
+  const [blockedReasonDraft, setBlockedReasonDraft] = useState(todo.blockedReason ?? '');
+  const [isEditingBlockedReason, setIsEditingBlockedReason] = useState(
+    todo.status === 'blocked' && !todo.blockedReason
+  );
+
+  const trimmedBlockedReason = blockedReasonDraft.trim();
+  const canSaveBlockedReason = trimmedBlockedReason.length > 0;
+
+  const handleSaveBlockedReason = () => {
+    if (!canSaveBlockedReason) return;
+    onUpdateBlockedReason(todo.id, trimmedBlockedReason);
+    setIsEditingBlockedReason(false);
+  };
+
+  const handleEditBlockedReason = () => {
+    setBlockedReasonDraft(todo.blockedReason ?? '');
+    setIsEditingBlockedReason(true);
+  };
+
   return (
     <div
       data-testid="todo-item"
@@ -55,6 +77,95 @@ export function KanbanCard({
             >
               Due: {new Date(todo.targetDate).toLocaleDateString()}
             </p>
+          )}
+          {todo.status === 'blocked' && (
+            <div
+              style={{
+                marginTop: '0.5rem',
+                padding: '0.5rem',
+                borderRadius: '8px',
+                border: '1px dashed var(--border-light)',
+                backgroundColor: 'var(--form-background)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.4rem',
+              }}
+            >
+              {isEditingBlockedReason ? (
+                <>
+                  <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    Blocked reason
+                  </label>
+                  <textarea
+                    data-testid="blocked-reason-input"
+                    value={blockedReasonDraft}
+                    onChange={(event) => setBlockedReasonDraft(event.target.value)}
+                    rows={2}
+                    style={{
+                      resize: 'vertical',
+                      padding: '0.4rem',
+                      borderRadius: '6px',
+                      border: '1px solid var(--input-border)',
+                      backgroundColor: 'var(--input-background)',
+                      color: 'var(--foreground)',
+                      fontSize: '0.75rem',
+                    }}
+                  />
+                  <button
+                    type="button"
+                    data-testid="blocked-reason-save"
+                    onClick={handleSaveBlockedReason}
+                    disabled={!canSaveBlockedReason}
+                    style={{
+                      alignSelf: 'flex-start',
+                      padding: '0.3rem 0.6rem',
+                      fontSize: '0.7rem',
+                      borderRadius: '6px',
+                      border: 'none',
+                      backgroundColor: canSaveBlockedReason ? 'var(--accent)' : 'var(--border-light)',
+                      color: canSaveBlockedReason ? 'white' : 'var(--text-muted)',
+                      cursor: canSaveBlockedReason ? 'pointer' : 'not-allowed',
+                    }}
+                  >
+                    Save reason
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p
+                    data-testid="blocked-reason-display"
+                    style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)' }}
+                  >
+                    Reason: {todo.blockedReason}
+                  </p>
+                  {todo.blockedAt && (
+                    <p
+                      data-testid="blocked-reason-timestamp"
+                      style={{ margin: 0, fontSize: '0.7rem', color: 'var(--text-muted)' }}
+                    >
+                      Timestamp: {todo.blockedAt}
+                    </p>
+                  )}
+                  <button
+                    type="button"
+                    data-testid="blocked-reason-edit"
+                    onClick={handleEditBlockedReason}
+                    style={{
+                      alignSelf: 'flex-start',
+                      padding: '0.25rem 0.6rem',
+                      fontSize: '0.7rem',
+                      borderRadius: '6px',
+                      border: '1px solid var(--input-border)',
+                      backgroundColor: 'transparent',
+                      color: 'var(--text-secondary)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Edit reason
+                  </button>
+                </>
+              )}
+            </div>
           )}
         </div>
         <button

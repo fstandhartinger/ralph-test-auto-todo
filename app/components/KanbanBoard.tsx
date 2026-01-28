@@ -4,16 +4,18 @@ import { KanbanCard } from './KanbanCard';
 const COLUMNS: Array<{ id: TodoStatus; title: string; subtitle: string }> = [
   { id: 'todo', title: 'Todo', subtitle: 'Next up' },
   { id: 'in_progress', title: 'In Progress', subtitle: 'Actively moving' },
+  { id: 'blocked', title: 'Blocked', subtitle: 'Waiting on something' },
   { id: 'done', title: 'Done', subtitle: 'Shipped' },
 ];
 
 interface KanbanBoardProps {
   todos: Todo[];
   onUpdateStatus: (id: string, status: TodoStatus) => void;
+  onUpdateBlockedReason: (id: string, reason: string) => void;
   onDelete: (id: string) => void;
 }
 
-export function KanbanBoard({ todos, onUpdateStatus, onDelete }: KanbanBoardProps) {
+export function KanbanBoard({ todos, onUpdateStatus, onUpdateBlockedReason, onDelete }: KanbanBoardProps) {
   return (
     <section
       data-testid="kanban-board"
@@ -93,6 +95,7 @@ export function KanbanBoard({ todos, onUpdateStatus, onDelete }: KanbanBoardProp
                         onUpdateStatus(todo.id, COLUMNS[columnIndex + 1].id);
                       }
                     }}
+                    onUpdateBlockedReason={onUpdateBlockedReason}
                     onDelete={() => onDelete(todo.id)}
                   />
                 ))
