@@ -12,8 +12,19 @@
   --comment-background: #f9f9f9;
   --accent: #722F37;
   --accent-hover: #5a252c;
+  --accent-foreground: #ffffff;
   --error-background: #ffebee;
   --error-text: #c62828;
+  --danger: #f44336;
+  --danger-foreground: #ffffff;
+  --status-open: #4caf50;
+  --status-in-progress: #2196f3;
+  --status-in-discussion: #ffb300;
+  --status-completed: #9e9e9e;
+  --status-rejected: #f44336;
+  --priority-low: #8bc34a;
+  --priority-medium: #ff9800;
+  --priority-high: #f44336;
 }
 
 [data-theme="dark"] {
@@ -30,8 +41,19 @@
   --comment-background: #222;
   --accent: #a04050;
   --accent-hover: #8a3545;
+  --accent-foreground: #ffffff;
   --error-background: #2d1a1a;
   --error-text: #ff6b6b;
+  --danger: #ff6b6b;
+  --danger-foreground: #ffffff;
+  --status-open: #4caf50;
+  --status-in-progress: #2196f3;
+  --status-in-discussion: #ffb300;
+  --status-completed: #9e9e9e;
+  --status-rejected: #ff6b6b;
+  --priority-low: #8bc34a;
+  --priority-medium: #ff9800;
+  --priority-high: #ff6b6b;
 }
 
 html,

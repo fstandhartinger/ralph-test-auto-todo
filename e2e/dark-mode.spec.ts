@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Dark Mode', () => {
   test.beforeEach(async ({ page }) => {
     // Clear localStorage before each test
+    await page.emulateMedia({ colorScheme: 'light' });
     await page.goto('/');
     await page.evaluate(() => localStorage.clear());
     await page.reload();
@@ -139,5 +140,48 @@ test.describe('Dark Mode', () => {
 
     const changeRequestsMenu = page.getByTestId('theme-menu');
     await expect(changeRequestsMenu).toHaveValue('dark');
+  });
+
+  test('msg systems scheme applies brand colors and persists', async ({ page }) => {
+    await page.goto('/');
+
+    const themeMenu = page.getByTestId('theme-menu');
+    await themeMenu.selectOption('msg');
+
+    const htmlElement = page.locator('html');
+    await expect(htmlElement).toHaveAttribute('data-theme', 'msg');
+
+    const storedTheme = await page.evaluate(() => localStorage.getItem('ralph-theme'));
+    expect(storedTheme).toBe('msg');
+
+    const accent = await page.evaluate(() =>
+      getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()
+    );
+    expect(accent).toBe('#a01441');
+  });
+
+  test('custom color overrides persist in localStorage', async ({ page }) => {
+    await page.goto('/');
+
+    await page.getByTestId('color-customization-summary').click();
+    const accentPicker = page.getByTestId('color-picker-accent');
+    await accentPicker.fill('#123456');
+
+    await page.waitForFunction(() => localStorage.getItem('ralph-theme-overrides') !== null);
+    const storedOverrides = await page.evaluate(() => localStorage.getItem('ralph-theme-overrides'));
+    expect(storedOverrides).not.toBeNull();
+    const overrides = JSON.parse(storedOverrides ?? '{}');
+    expect(overrides.accent).toBe('#123456');
+
+    const accent = await page.evaluate(() =>
+      getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()
+    );
+    expect(accent).toBe('#123456');
+
+    await page.reload();
+    const accentAfterReload = await page.evaluate(() =>
+      getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()
+    );
+    expect(accentAfterReload).toBe('#123456');
   });
 });

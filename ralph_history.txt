@@ -130,3 +130,7 @@ Added E2E coverage for optional target dates and ensured lint/test stability:
 [2026-01-28 15:19] CHANGE-REQUEST: neuer Status Blocked | TYPE: breakthrough
 - Added Blocked column with editable reason + timestamp tracking, plus persistence handling.
 - Updated kanban move flow + added Playwright coverage for blocked reason and new column order.
+
+[2026-01-28 15:49] CHANGE-REQUEST: Nachtrag Farbauswahl | TYPE: breakthrough
+- Added preset color schemes (default, dark, msg systems ag, high-contrast) plus a color-picker menu with localStorage persistence.
+- Replaced hard-coded colors with theme tokens and expanded Playwright coverage for scheme selection and overrides.

@@ -14,17 +14,17 @@ import {
 } from '../lib/change-request-read';
 
 const statusColors: Record<ChangeRequest['status'], string> = {
-  open: '#4CAF50',
-  in_progress: '#2196F3',
-  in_discussion: '#FFB300',
-  completed: '#9E9E9E',
-  rejected: '#f44336',
+  open: 'var(--status-open)',
+  in_progress: 'var(--status-in-progress)',
+  in_discussion: 'var(--status-in-discussion)',
+  completed: 'var(--status-completed)',
+  rejected: 'var(--status-rejected)',
 };
 
 const priorityColors: Record<ChangeRequest['priority'], string> = {
-  low: '#8BC34A',
-  medium: '#FF9800',
-  high: '#f44336',
+  low: 'var(--priority-low)',
+  medium: 'var(--priority-medium)',
+  high: 'var(--priority-high)',
 };
 
 const COMMENT_POLL_INTERVAL_MS = 4000;
@@ -304,7 +304,7 @@ export default function ChangeRequestsPage() {
             onClick={() => { resetForm(); setShowForm(!showForm); }}
             style={{
               backgroundColor: 'var(--accent)',
-              color: 'white',
+              color: 'var(--accent-foreground)',
               border: 'none',
               padding: '0.5rem 1rem',
               borderRadius: '4px',
@@ -402,7 +402,7 @@ export default function ChangeRequestsPage() {
             type="submit"
             style={{
               backgroundColor: 'var(--accent)',
-              color: 'white',
+              color: 'var(--accent-foreground)',
               border: 'none',
               padding: '0.75rem 1.5rem',
               borderRadius: '4px',
@@ -441,7 +441,7 @@ export default function ChangeRequestsPage() {
                   <span
                     style={{
                       backgroundColor: priorityColors[cr.priority],
-                      color: 'white',
+                      color: 'var(--accent-foreground)',
                       padding: '0.2rem 0.4rem',
                       borderRadius: '4px',
                       fontSize: '0.7rem',
@@ -455,7 +455,7 @@ export default function ChangeRequestsPage() {
                     onChange={(e) => handleStatusChange(cr.id, e.target.value as ChangeRequest['status'])}
                     style={{
                       backgroundColor: statusColors[cr.status],
-                      color: 'white',
+                      color: 'var(--accent-foreground)',
                       border: 'none',
                       padding: '0.2rem 0.4rem',
                       borderRadius: '4px',
@@ -499,7 +499,7 @@ export default function ChangeRequestsPage() {
                         data-testid="change-request-unread-count"
                         style={{
                           backgroundColor: 'var(--accent)',
-                          color: 'white',
+                          color: 'var(--accent-foreground)',
                           borderRadius: '999px',
                           fontSize: '0.65rem',
                           fontWeight: 600,
@@ -530,8 +530,8 @@ export default function ChangeRequestsPage() {
                     onClick={() => handleDelete(cr.id)}
                     style={{
                       backgroundColor: 'transparent',
-                      color: '#f44336',
-                      border: '1px solid #f44336',
+                      color: 'var(--danger)',
+                      border: '1px solid var(--danger)',
                       padding: '0.25rem 0.5rem',
                       borderRadius: '4px',
                       cursor: 'pointer',
@@ -595,7 +595,7 @@ export default function ChangeRequestsPage() {
                       onClick={() => handleAddComment(cr.id)}
                       style={{
                         backgroundColor: 'var(--accent)',
-                        color: 'white',
+                        color: 'var(--accent-foreground)',
                         border: 'none',
                         padding: '0.5rem 1rem',
                         borderRadius: '4px',

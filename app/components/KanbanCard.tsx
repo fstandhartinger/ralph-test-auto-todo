@@ -123,7 +123,7 @@ export function KanbanCard({
                       borderRadius: '6px',
                       border: 'none',
                       backgroundColor: canSaveBlockedReason ? 'var(--accent)' : 'var(--border-light)',
-                      color: canSaveBlockedReason ? 'white' : 'var(--text-muted)',
+                      color: canSaveBlockedReason ? 'var(--accent-foreground)' : 'var(--text-muted)',
                       cursor: canSaveBlockedReason ? 'pointer' : 'not-allowed',
                     }}
                   >
@@ -177,7 +177,7 @@ export function KanbanCard({
             border: 'none',
             borderRadius: '6px',
             cursor: 'pointer',
-            color: 'white',
+            color: 'var(--accent-foreground)',
             fontSize: '1rem',
             padding: '0.15rem 0.5rem',
             lineHeight: 1,
@@ -220,7 +220,7 @@ export function KanbanCard({
             borderRadius: '6px',
             border: '1px solid var(--input-border)',
             backgroundColor: canMoveRight ? 'var(--accent)' : 'var(--form-background)',
-            color: canMoveRight ? 'white' : 'var(--text-muted)',
+            color: canMoveRight ? 'var(--accent-foreground)' : 'var(--text-muted)',
             cursor: canMoveRight ? 'pointer' : 'not-allowed',
           }}
           aria-label="Move right"

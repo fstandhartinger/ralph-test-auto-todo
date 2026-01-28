@@ -193,7 +193,7 @@ export default function Home() {
                 data-testid="change-requests-unread-count"
                 style={{
                   backgroundColor: 'var(--accent)',
-                  color: 'white',
+                  color: 'var(--accent-foreground)',
                   borderRadius: '999px',
                   fontSize: '0.65rem',
                   fontWeight: 600,

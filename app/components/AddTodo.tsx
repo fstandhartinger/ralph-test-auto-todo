@@ -77,7 +77,7 @@ export function AddTodo({ onAdd }: AddTodoProps) {
           padding: '0.75rem 1.5rem',
           fontSize: '1rem',
           backgroundColor: 'var(--accent)',
-          color: 'white',
+          color: 'var(--accent-foreground)',
           border: 'none',
           borderRadius: '4px',
           cursor: 'pointer',
