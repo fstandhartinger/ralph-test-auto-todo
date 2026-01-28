@@ -8,11 +8,11 @@ test.describe('Dark Mode', () => {
     await page.reload();
   });
 
-  test('displays theme toggle button', async ({ page }) => {
+  test('displays theme menu entry', async ({ page }) => {
     await page.goto('/');
 
-    const themeToggle = page.getByTestId('theme-toggle');
-    await expect(themeToggle).toBeVisible();
+    const themeMenu = page.getByTestId('theme-menu');
+    await expect(themeMenu).toBeVisible();
   });
 
   test('starts in light mode by default', async ({ page }) => {
@@ -23,46 +23,43 @@ test.describe('Dark Mode', () => {
     const dataTheme = await htmlElement.getAttribute('data-theme');
     expect(dataTheme === null || dataTheme === 'light').toBeTruthy();
 
-    // Toggle should show moon icon for light mode
-    const themeToggle = page.getByTestId('theme-toggle');
-    await expect(themeToggle).toContainText('🌙');
+    const themeMenu = page.getByTestId('theme-menu');
+    await expect(themeMenu).toHaveValue('light');
   });
 
-  test('toggles to dark mode when clicked', async ({ page }) => {
+  test('switches to dark mode when selected', async ({ page }) => {
     await page.goto('/');
 
-    const themeToggle = page.getByTestId('theme-toggle');
-    await themeToggle.click();
+    const themeMenu = page.getByTestId('theme-menu');
+    await themeMenu.selectOption('dark');
 
     // Check that data-theme is now dark
     const htmlElement = page.locator('html');
     await expect(htmlElement).toHaveAttribute('data-theme', 'dark');
-
-    // Toggle should now show sun icon
-    await expect(themeToggle).toContainText('☀️');
+    await expect(themeMenu).toHaveValue('dark');
   });
 
-  test('toggles back to light mode on second click', async ({ page }) => {
+  test('switches back to light mode after selection', async ({ page }) => {
     await page.goto('/');
 
-    const themeToggle = page.getByTestId('theme-toggle');
+    const themeMenu = page.getByTestId('theme-menu');
 
-    // Toggle to dark
-    await themeToggle.click();
+    // Switch to dark
+    await themeMenu.selectOption('dark');
     const htmlElement = page.locator('html');
     await expect(htmlElement).toHaveAttribute('data-theme', 'dark');
 
-    // Toggle back to light
-    await themeToggle.click();
+    // Switch back to light
+    await themeMenu.selectOption('light');
     await expect(htmlElement).toHaveAttribute('data-theme', 'light');
-    await expect(themeToggle).toContainText('🌙');
+    await expect(themeMenu).toHaveValue('light');
   });
 
   test('persists dark mode preference in localStorage', async ({ page }) => {
     await page.goto('/');
 
-    const themeToggle = page.getByTestId('theme-toggle');
-    await themeToggle.click();
+    const themeMenu = page.getByTestId('theme-menu');
+    await themeMenu.selectOption('dark');
 
     // Verify localStorage was updated
     const storedTheme = await page.evaluate(() => localStorage.getItem('ralph-theme'));
@@ -77,11 +74,11 @@ test.describe('Dark Mode', () => {
   test('persists light mode preference in localStorage', async ({ page }) => {
     await page.goto('/');
 
-    const themeToggle = page.getByTestId('theme-toggle');
+    const themeMenu = page.getByTestId('theme-menu');
 
-    // Toggle to dark then back to light
-    await themeToggle.click();
-    await themeToggle.click();
+    // Switch to dark then back to light
+    await themeMenu.selectOption('dark');
+    await themeMenu.selectOption('light');
 
     // Verify localStorage was updated
     const storedTheme = await page.evaluate(() => localStorage.getItem('ralph-theme'));
@@ -96,8 +93,8 @@ test.describe('Dark Mode', () => {
   test('dark mode applies correct background color', async ({ page }) => {
     await page.goto('/');
 
-    const themeToggle = page.getByTestId('theme-toggle');
-    await themeToggle.click();
+    const themeMenu = page.getByTestId('theme-menu');
+    await themeMenu.selectOption('dark');
 
     const htmlElement = page.locator('html');
     await expect(htmlElement).toHaveAttribute('data-theme', 'dark');
@@ -107,27 +104,21 @@ test.describe('Dark Mode', () => {
     await expect(body).toHaveCSS('background-color', 'rgb(10, 10, 10)');
   });
 
-  test('theme toggle has correct aria-label', async ({ page }) => {
+  test('theme menu has correct aria-label', async ({ page }) => {
     await page.goto('/');
 
-    const themeToggle = page.getByTestId('theme-toggle');
-
-    // In light mode, should suggest switching to dark
-    await expect(themeToggle).toHaveAttribute('aria-label', 'Switch to dark mode');
-
-    // After toggle, should suggest switching to light
-    await themeToggle.click();
-    await expect(themeToggle).toHaveAttribute('aria-label', 'Switch to light mode');
+    const themeMenu = page.getByTestId('theme-menu');
+    await expect(themeMenu).toHaveAttribute('aria-label', 'Farbschema auswählen');
   });
 
   test('dark mode is available on change-requests page', async ({ page }) => {
     await page.goto('/change-requests');
 
-    const themeToggle = page.getByTestId('theme-toggle');
-    await expect(themeToggle).toBeVisible();
+    const themeMenu = page.getByTestId('theme-menu');
+    await expect(themeMenu).toBeVisible();
 
-    // Toggle to dark mode
-    await themeToggle.click();
+    // Switch to dark mode
+    await themeMenu.selectOption('dark');
 
     const htmlElement = page.locator('html');
     await expect(htmlElement).toHaveAttribute('data-theme', 'dark');
@@ -136,8 +127,8 @@ test.describe('Dark Mode', () => {
   test('theme preference syncs across pages', async ({ page }) => {
     // Set dark mode on homepage
     await page.goto('/');
-    const themeToggle = page.getByTestId('theme-toggle');
-    await themeToggle.click();
+    const themeMenu = page.getByTestId('theme-menu');
+    await themeMenu.selectOption('dark');
 
     // Navigate to change-requests
     await page.goto('/change-requests');
@@ -146,8 +137,7 @@ test.describe('Dark Mode', () => {
     const htmlElement = page.locator('html');
     await expect(htmlElement).toHaveAttribute('data-theme', 'dark');
 
-    // Toggle should show sun icon
-    const changeRequestsToggle = page.getByTestId('theme-toggle');
-    await expect(changeRequestsToggle).toContainText('☀️');
+    const changeRequestsMenu = page.getByTestId('theme-menu');
+    await expect(changeRequestsMenu).toHaveValue('dark');
   });
 });

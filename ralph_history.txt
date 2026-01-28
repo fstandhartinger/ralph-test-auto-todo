@@ -122,3 +122,6 @@ Added E2E coverage for optional target dates and ensured lint/test stability:
 - Updated Playwright coverage for column moves, persistence, and homepage checks
 [2026-01-28 14:31] CHANGE-REQUEST: Zeittempel bei created | TYPE: breakthrough
 - Ensured change_requests timestamps are stored with seconds precision and added Playwright coverage for creation flow.
+
+[2026-01-28 14:54] CHANGE-REQUEST: Menü für Farbauswahl | TYPE: breakthrough
+- Replaced the theme toggle with a labeled menu entry that lets users pick light or dark, and updated Playwright coverage.
